@@ -1,0 +1,41 @@
+name: sanity check
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  code-style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: node -v
+      - run: yarn -v
+      - run: yarn install
+      - run: yarn sanity-check
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+      - run: node -v
+      - run: yarn -v
+      - run: yarn install
+      - run: yarn test-units
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: node -v
+      - run: yarn -v
+      - run: yarn install
+      - run: yarn build:prod
