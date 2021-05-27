@@ -1,7 +1,10 @@
 import { Router } from "express";
 import { Route } from "../../helpers/constants";
 import { AuthController } from "../../controllers";
-import { registerUserSchemaValidator } from "../../validators";
+import {
+  registerUserSchemaValidator,
+  userLoginSchemaValidator,
+} from "../../validators";
 import { emailExists } from "../../middlewares";
 
 // TODO: Write tests
@@ -14,5 +17,7 @@ router.post(Route.Register, [
   emailExists,
   AuthController.register,
 ]);
+
+router.post(Route.Login, [userLoginSchemaValidator, AuthController.login]);
 
 export default router;

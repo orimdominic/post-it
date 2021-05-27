@@ -18,7 +18,7 @@ export class PostController {
           .status(StatusCodes.NOT_FOUND)
           .send(getReasonPhrase(StatusCodes.NOT_FOUND));
       }
-      return res.status(StatusCodes.OK).json(postDoc);
+      return res.status(StatusCodes.OK).json(postDoc.toJSON());
     } catch (err) {
       console.error(err);
       res.status(500).send(JSON.stringify(err, null, 2));
@@ -51,8 +51,8 @@ export class PostController {
       }
       postDoc.updatedAt = post.timestamp;
       postDoc.content = post.content;
-      const newPostDoc = await postDoc.save();
-      res.status(StatusCodes.CREATED).json(newPostDoc);
+      const updatedPostDoc = await postDoc.save();
+      res.status(StatusCodes.CREATED).json(updatedPostDoc.toJSON());
     } catch (err) {
       console.error(err);
       res.status(500).send(JSON.stringify(err, null, 2));
@@ -73,7 +73,7 @@ export class PostController {
         updatedAt: timestamp,
       });
       res.setHeader("Location", `/posts/${postDoc.id}`);
-      res.status(StatusCodes.CREATED).json(postDoc);
+      res.status(StatusCodes.CREATED).json(postDoc.toJSON());
     } catch (err) {
       console.error(err);
       res.status(500).send(JSON.stringify(err, null, 2));
