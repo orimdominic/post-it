@@ -7,5 +7,9 @@ process.env.NODE_ENV === "production"
 export const Server = {
   ENV: process.env.NODE_ENV ? process.env.NODE_ENV.toString() : "development",
   PORT: process.env.PORT ? parseInt(process.env.PORT) : 5000,
-  ApiV1BaseRoute: "/api/v1"
+  BaseRoute: "/api/v1",
 };
+
+export enum Message {
+  RouteNotFound = "Route not found",
+}
