@@ -7,4 +7,6 @@ const router = Router();
 
 router.post(Route.Posts, createPostSchemaValidator, PostController.createPost);
 
+router.get(Route.PostWithIdParam, PostController.getPost);
+
 export default router;
