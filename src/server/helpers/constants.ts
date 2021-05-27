@@ -27,3 +27,7 @@ export enum Route {
   Posts = "/posts",
   PostWithIdParam = "/posts/:id",
 }
+
+export const dbURI = process.env.DB_URI
+  ? process.env.DB_URI
+  : "mongodb://localhost:27017/posts-db";
