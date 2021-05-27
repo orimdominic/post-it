@@ -7,8 +7,7 @@ import { initMongoDb } from "./configs";
 import { getReasonPhrase, StatusCodes } from "http-status-codes";
 import apiRouter from "./routes/api";
 import { Message, Server } from "./helpers/constants";
-import { AppHttpResponse } from "./helpers/AppHttpResponse";
-import { AppHttpError } from "./helpers/AppHttpError";
+import { AppHttpResponse, AppHttpError } from "./helpers";
 
 // Start the database
 initMongoDb();
