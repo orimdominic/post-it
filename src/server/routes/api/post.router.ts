@@ -15,17 +15,15 @@ router.get(Route.PostWithIdParam, PostController.getOnePost);
 
 router.get(Route.Posts, PostController.getAllPosts);
 
-router.patch(
-  Route.PostWithIdParam,
+router.patch(Route.PostWithIdParam, [
   updatePostSchemaValidator,
-  PostController.updateOnePost
-);
+  PostController.updateOnePost,
+]);
 
-router.post(
-  Route.Posts,
+router.post(Route.Posts, [
   createPostSchemaValidator,
-  PostController.createOnePost
-);
+  PostController.createOnePost,
+]);
 
 router.delete(Route.PostWithIdParam, PostController.deleteOnePost);
 

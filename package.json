@@ -20,14 +20,18 @@
     "test:codecov": "NODE_ENV=test jest --coverage=true",
     "cleanup": "rm -rf build",
     "prebuild:prod": "yarn cleanup",
-    "build:prod": "tsc --sourceMap false --declaration false -p ./"
+    "build:prod": "tsc --sourceMap false --declaration false -p ./",
+    "create:jwtkeys": "openssl genrsa -out .private.pem 4096 && openssl rsa -in .private.pem -pubout > .public.pem"
   },
   "devDependencies": {
+    "@types/app-root-path": "^1.2.4",
+    "@types/bcrypt": "^5.0.0",
     "@types/compression": "^1.7.0",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.10",
     "@types/express": "^4.17.12",
     "@types/hapi__joi": "^17.1.6",
+    "@types/jsonwebtoken": "^8.5.1",
     "@types/lodash": "^4.14.170",
     "@types/morgan": "^1.9.2",
     "@typescript-eslint/parser": "^4.17.0",
@@ -42,6 +46,7 @@
   "dependencies": {
     "@hapi/joi": "^17.1.1",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "app-root-path": "^3.0.0",
     "bcrypt": "^5.0.1",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",
