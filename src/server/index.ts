@@ -3,11 +3,15 @@ import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
+import { initMongoDb } from "./configs";
 import { getReasonPhrase, StatusCodes } from "http-status-codes";
 import apiRouter from "./routes/api";
 import { Message, Server } from "./helpers/constants";
 import { AppHttpResponse } from "./helpers/AppHttpResponse";
 import { AppHttpError } from "./helpers/AppHttpError";
+
+// Start the database
+initMongoDb();
 
 // Set up the express app
 const app: Application = express();
