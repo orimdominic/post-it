@@ -10,7 +10,8 @@ export class AppHttpResponse {
    * Configure and send an HTTP response
    * @param {Response} res - The response object
    * @param {StatusCodes} code - The status code
-   * @param {Record<string, unknown>} data - data for the client
+   * @param {Record<string, unknown>} data - Data for the client
+   * @param {string | undefined} message - Optional message
    */
   static send(
     res: Response,

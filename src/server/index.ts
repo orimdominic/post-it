@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import { getReasonPhrase, StatusCodes } from "http-status-codes";
+import apiRouter from "./routes/api";
 import { Message, Server } from "./helpers/constants";
 import { AppHttpResponse } from "./helpers/AppHttpResponse";
 import { AppHttpError } from "./helpers/AppHttpError";
@@ -20,14 +21,14 @@ app.use(express.json(), express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
   if (
     req.method === "GET" &&
-    (req.path === Server.BaseRoute || req.path === "/")
+    (req.path === Server.BaseApiRoute || req.path === "/")
   ) {
     return res.status(StatusCodes.OK).send("🤝👌");
   }
   next();
 });
 
-// app.use(Server.BaseRoute, v1Router)
+app.use(Server.BaseApiRoute, apiRouter);
 
 // Error handling
 app.use((req, res, next) => {
@@ -55,6 +56,6 @@ app.use(
 const server = http.createServer(app);
 server.listen(Server.PORT, () => {
   console.info(
-    `Server is running on http://localhost:${Server.PORT}${Server.BaseRoute}`
+    `Server is running on http://localhost:${Server.PORT}${Server.BaseApiRoute}`
   );
 });
