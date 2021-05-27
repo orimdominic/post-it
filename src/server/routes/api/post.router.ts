@@ -11,16 +11,22 @@ import {
 
 const router = Router();
 
-router.post(Route.Posts, createPostSchemaValidator, PostController.createPost);
+router.get(Route.PostWithIdParam, PostController.getOnePost);
+
+router.get(Route.Posts, PostController.getAllPosts);
 
 router.patch(
   Route.PostWithIdParam,
   updatePostSchemaValidator,
-  PostController.updatePost
+  PostController.updateOnePost
 );
 
-router.get(Route.Posts, PostController.getAllPosts);
+router.post(
+  Route.Posts,
+  createPostSchemaValidator,
+  PostController.createOnePost
+);
 
-router.get(Route.PostWithIdParam, PostController.getOnePost);
+router.delete(Route.PostWithIdParam, PostController.deleteOnePost);
 
 export default router;
