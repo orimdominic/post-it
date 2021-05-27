@@ -30,16 +30,16 @@ export class PostController {
 
   static updatePost: RequestHandler = async (req, res) => {
     // TODO: User should be able to upload images
-    const { id } = req.params
+    const { id } = req.params;
     const { post } = req.body;
     try {
-      const postDoc = await PostModel.findById({ _id: id })
-      if(!postDoc){
-        return res.status(404).send("Not found")
+      const postDoc = await PostModel.findById({ _id: id });
+      if (!postDoc) {
+        return res.status(404).send("Not found");
       }
-      postDoc.updatedAt = post.timestamp
-      postDoc.content = post.content
-      const newPostDoc = await postDoc.save()
+      postDoc.updatedAt = post.timestamp;
+      postDoc.content = post.content;
+      const newPostDoc = await postDoc.save();
       res.status(StatusCodes.CREATED).send(JSON.stringify(newPostDoc, null, 2));
     } catch (err) {
       console.error(err);
@@ -70,9 +70,7 @@ export class PostController {
     try {
       const postDocs = await PostModel.find();
       if (!postDocs) {
-        return res
-          .status(StatusCodes.OK)
-          .json([]);
+        return res.status(StatusCodes.OK).json([]);
       }
       return res.status(StatusCodes.OK).json(postDocs);
     } catch (err) {
