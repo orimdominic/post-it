@@ -15,6 +15,9 @@ export const Server = {
  */
 export enum Message {
   RouteNotFound = "Route not found",
+
+  EmailExists = "Email already exists",
+  UsernameExists = "Username already exists",
 }
 
 /**

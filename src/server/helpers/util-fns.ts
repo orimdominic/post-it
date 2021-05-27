@@ -1,4 +1,8 @@
 import { isEmpty } from "lodash";
+import bcrypt from "bcrypt";
+import appRoot from "app-root-path";
+import jwt from "jsonwebtoken";
+import fs from "fs/promises";
 
 /**
  * Trim form inputs
@@ -24,4 +28,23 @@ export const trimInputs = (
     }
   }
   return form;
+};
+
+/**
+ * Encrypt a user's password
+ * @param {string} password - the plain password
+ * @return {Promise<string>} the hashed password
+ */
+export const hashPassword = async (password: string): Promise<string> =>
+  await bcrypt.hash(password, 10);
+
+export const createJwt = async (
+  payload: Record<string, unknown>
+): Promise<string> => {
+  const algorithm = "RS256";
+  const jwtSecret = await fs.readFile(`${appRoot}/.private.pem`, "utf8");
+  return jwt.sign(payload, jwtSecret, {
+    algorithm,
+    expiresIn: "1d",
+  });
 };

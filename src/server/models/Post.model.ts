@@ -16,4 +16,4 @@ const postSchema = new Schema(
   { versionKey: false }
 );
 
-export const PostModel = model("Post", postSchema);
+export const PostModel = model(ModelName.Post, postSchema);

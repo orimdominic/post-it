@@ -13,6 +13,8 @@
 
 ## Setup
 
+<!-- gen jwt keys with npm script -->
+
 ## Installation
 
 1. `cd` to this project's directory and run `yarn install`
