@@ -13,8 +13,10 @@ export class PostController {
         createdAt: timestamp,
         updatedAt: timestamp,
       });
+      res.setHeader("Location", `/posts/${newPost.id}`)
       res.status(200).send(JSON.stringify(newPost, null, 2));
     } catch (err) {
+      console.error(err)
       res.status(500).send(JSON.stringify(err, null, 2));
     }
   };
