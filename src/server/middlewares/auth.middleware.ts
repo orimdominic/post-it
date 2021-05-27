@@ -7,8 +7,8 @@ import { UserModel } from "../models";
 export const emailExists: RequestHandler = async (req, res, next) => {
   const { email } = req.body.user;
   try {
-    const userDoc = await UserModel.findOne({ email });
-    if (!userDoc) {
+    const emailExists = await UserModel.exists({ email });
+    if (!emailExists) {
       return next();
     }
     return next(new AppHttpError(StatusCodes.OK, Message.EmailExists));

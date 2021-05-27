@@ -3,6 +3,7 @@ import {
   createPostSchema,
   updatePostSchema,
   registerUserSchema,
+  userLoginSchema,
 } from "./schemas";
 import { trimInputs } from "../helpers/util-fns";
 import { AppHttpError } from "../helpers/AppHttpError";
@@ -58,6 +59,25 @@ export const updatePostSchemaValidator: RequestHandler = async (
     trimInputs(form);
 
     await updatePostSchema.validateAsync(form, { abortEarly: false });
+    return next();
+  } catch (err) {
+    return next(
+      new AppHttpError(StatusCodes.UNPROCESSABLE_ENTITY, err.message)
+    );
+  }
+};
+
+export const userLoginSchemaValidator: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const { post: form } = req.body;
+
+  try {
+    trimInputs(form);
+
+    await userLoginSchema.validateAsync(form, { abortEarly: false });
     return next();
   } catch (err) {
     return next(
