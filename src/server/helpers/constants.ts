@@ -31,3 +31,8 @@ export enum Route {
 export const dbURI = process.env.DB_URI
   ? process.env.DB_URI
   : "mongodb://localhost:27017/posts-db";
+
+export enum ModelName {
+  Post = "Post",
+  User = "User",
+}
