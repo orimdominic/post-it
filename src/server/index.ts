@@ -62,3 +62,8 @@ server.listen(Server.PORT, () => {
     `Server is running on http://localhost:${Server.PORT}${Server.BaseApiRoute}`
   );
 });
+
+// TODO: Setup Logger
+// TODO: Setup Swagger
+// TODO: Email service setup
+// Make HTTP fit proper response and request styles

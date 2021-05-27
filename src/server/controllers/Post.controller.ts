@@ -2,6 +2,10 @@ import { RequestHandler } from "express";
 import { StatusCodes, getReasonPhrase } from "http-status-codes";
 import { PostModel } from "../models";
 
+// TODO: Set response data to follow a format
+// TODO: Write docs for controller fns
+// TODO: Write tests
+
 export class PostController {
   static createPost: RequestHandler = async (req, res) => {
     const { post } = req.body;
@@ -22,9 +26,8 @@ export class PostController {
     }
   };
 
-  static getPost: RequestHandler = async (req, res) => {
+  static getOnePost: RequestHandler = async (req, res) => {
     const { id } = req.params;
-    console.log("post id:", id);
 
     try {
       const post = await PostModel.findById({ _id: id });
@@ -34,6 +37,23 @@ export class PostController {
           .send(getReasonPhrase(StatusCodes.NOT_FOUND));
       }
       return res.status(StatusCodes.OK).json(post);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send(JSON.stringify(err, null, 2));
+    }
+  };
+
+  static getAllPosts: RequestHandler = async (req, res) => {
+    // TODO: Add limit and skip
+    // TODO: Add length etc
+    try {
+      const posts = await PostModel.find();
+      if (!posts) {
+        return res
+          .status(StatusCodes.OK)
+          .json([]);
+      }
+      return res.status(StatusCodes.OK).json(posts);
     } catch (err) {
       console.error(err);
       res.status(500).send(JSON.stringify(err, null, 2));
