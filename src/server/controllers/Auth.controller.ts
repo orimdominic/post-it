@@ -20,7 +20,7 @@ export class AuthController {
       const token = await createJwt(userDoc.toJSON());
       // TODO: Send email
       const mailer = new NodeMailer(mailerEmail as string, mailerPassword)
-        .setSubject("Post It App Registration")
+        .setSubject(Message.RegMailSubject.replace("%useremail%", email))
         .setContent(
           "text",
           Message.RegMailContent.replace("%useremail%", email)

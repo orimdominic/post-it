@@ -19,6 +19,7 @@ export enum Message {
   EmailExists = "Email already exists",
   UsernameExists = "Username already exists",
 
+  RegMailSubject = " %useremail% 🤝 Post It",
   RegMailContent = "Hello! %useremail%! Welcome to Post It!",
 }
 
