@@ -5,6 +5,7 @@ connect(dbURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
+  useFindAndModify: false,
 })
   .catch((reason) =>
     console.error("mongodb connection failed", JSON.stringify(reason, null, 2))

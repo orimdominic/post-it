@@ -18,6 +18,9 @@ export enum Message {
 
   EmailExists = "Email already exists",
   UsernameExists = "Username already exists",
+
+  RegMailSubject = " %useremail% 🤝 Post It",
+  RegMailContent = "Hello! %useremail%! Welcome to Post It!",
 }
 
 /**
@@ -42,3 +45,10 @@ export enum ModelName {
   Post = "Post",
   User = "User",
 }
+
+export const NodeMailerConfig = {
+  email: process.env.NODEMAILER_EMAIL ? process.env.NODEMAILER_EMAIL : "",
+  password: process.env.NODEMAILER_PASSWORD
+    ? process.env.NODEMAILER_PASSWORD
+    : "",
+};
