@@ -3,6 +3,9 @@ import { StatusCodes } from "http-status-codes";
 import { AppHttpError } from "../helpers";
 import { hashPassword, createJwt } from "../helpers/util-fns";
 import { UserModel } from "../models";
+import { NodeMailer } from "../services/emails";
+import { NodeMailerConfig, Message } from "../helpers/constants";
+const { email: mailerEmail, password: mailerPassword } = NodeMailerConfig;
 
 export class AuthController {
   static register: RequestHandler = async (req, res, next) => {
@@ -16,9 +19,19 @@ export class AuthController {
       delete userDoc._doc.password;
       const token = await createJwt(userDoc.toJSON());
       // TODO: Send email
-      res.setHeader("token", token);
+      const mailer = new NodeMailer(mailerEmail as string, mailerPassword)
+        .setSubject("Post It App Registration")
+        .setContent(
+          "text",
+          Message.RegMailContent.replace("%useremail%", email)
+        )
+        .addRecipient(email);
+      await mailer.send();
+      res.header("X-Access-Token", token);
+      res.cookie("token", token);
       res.status(StatusCodes.CREATED).json(userDoc.toJSON());
     } catch (err) {
+      await UserModel.findOneAndRemove({ email });
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
@@ -36,7 +49,8 @@ export class AuthController {
       }
       delete userDoc._doc.password;
       const token = await createJwt(userDoc.toJSON());
-      res.setHeader("token", token);
+      res.header("X-Access-Token", token);
+      res.cookie("token", token);
       res.status(StatusCodes.OK).json(userDoc.toJSON());
     } catch (err) {
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));

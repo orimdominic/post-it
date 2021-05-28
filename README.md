@@ -14,6 +14,8 @@
 ## Setup
 
 <!-- gen jwt keys with npm script -->
+<!-- mailer with less secure apps settings enabled -->
+<!-- https://accounts.google.com/b/0/DisplayUnlockCaptcha -->
 
 ## Installation
 
