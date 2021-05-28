@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { AppHttpError } from "../helpers";
 import { hashPassword, createJwt } from "../helpers/util-fns";
-import { UserModel } from "../models";
+import { UserModel, PasswordResetModel } from "../models";
 import { NodeMailer } from "../services/emails";
 import { NodeMailerConfig, Message } from "../helpers/constants";
 const { email: mailerEmail, password: mailerPassword } = NodeMailerConfig;
@@ -55,6 +55,17 @@ export class AuthController {
     } catch (err) {
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
+  };
+
+  static sendPasswordResetCode: RequestHandler = async (req, res, next) => {
+    const { email } = req.body;
+    try {
+      // Generate 6-digit code
+      const [code] = (Math.random() * Math.pow(10, 6)).toString().split(".");
+      await PasswordResetModel.create({
+        code, email
+      })
+    } catch (err) {}
   };
 }
 
