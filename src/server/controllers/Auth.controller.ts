@@ -18,7 +18,6 @@ export class AuthController {
       });
       delete userDoc._doc.password;
       const token = await createJwt(userDoc.toJSON());
-      // TODO: Send email
       const mailer = new NodeMailer(mailerEmail as string, mailerPassword)
         .setSubject(Message.RegMailSubject.replace("%useremail%", email))
         .setContent(
@@ -32,6 +31,7 @@ export class AuthController {
       res.status(StatusCodes.CREATED).json(userDoc.toJSON());
     } catch (err) {
       await UserModel.findOneAndRemove({ email });
+      console.log(`@register`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
@@ -53,6 +53,7 @@ export class AuthController {
       res.cookie("token", token);
       res.status(StatusCodes.OK).json(userDoc.toJSON());
     } catch (err) {
+      console.log(`@login`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
@@ -63,9 +64,26 @@ export class AuthController {
       // Generate 6-digit code
       const [code] = (Math.random() * Math.pow(10, 6)).toString().split(".");
       await PasswordResetModel.create({
-        code, email
-      })
-    } catch (err) {}
+        code,
+        email,
+      });
+      const mailer = new NodeMailer(mailerEmail as string, mailerPassword)
+        .setSubject(Message.ForgotPasswordMailSubject)
+        .setContent(
+          "text",
+          Message.ForgotPasswordMailContent.replace(
+            "%useremail%",
+            email
+          ).replace("%code%", code)
+        )
+        .addRecipient(email);
+      await mailer.send();
+      // TODO: What's the proper stus code?
+      res.status(StatusCodes.CREATED).send("Code sent");
+    } catch (err) {
+      console.log(`@sendPasswordResetCode`, err);
+      next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
+    }
   };
 }
 
