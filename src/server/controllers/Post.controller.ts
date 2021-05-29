@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { AppHttpError, AppHttpResponse } from "../helpers";
 import { paginatorMetadata } from "../helpers/util-fns";
+import { Message } from "../helpers/constants";
 import { PostModel } from "../models";
 
 interface CloudinaryFileResponse {
@@ -32,7 +33,7 @@ export class PostController {
       if (!postDoc) {
         return AppHttpResponse.send(res, StatusCodes.NOT_FOUND, null);
       }
-      return AppHttpResponse.send(res, StatusCodes.NOT_FOUND, {
+      return AppHttpResponse.send(res, StatusCodes.OK, {
         post: postDoc.toJSON(),
       });
     } catch (err) {
@@ -106,9 +107,14 @@ export class PostController {
         }
       );
 
-      return AppHttpResponse.send(res, StatusCodes.OK, {
-        post: updatedPostDoc.toJSON(),
-      });
+      return AppHttpResponse.send(
+        res,
+        StatusCodes.OK,
+        {
+          post: updatedPostDoc.toJSON(),
+        },
+        Message.Updated
+      );
     } catch (err) {
       return next(
         new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
@@ -154,11 +160,17 @@ export class PostController {
    */
   static deleteOnePost: RequestHandler = async (req, res, next) => {
     const { id } = req.params;
+    const { user } = req.body;
     try {
       const postDoc = await PostModel.findById({ _id: id });
       if (!postDoc) {
-        return res.status(404).send("Not found");
+        return AppHttpResponse.send(res, StatusCodes.NOT_FOUND, null);
       }
+      // If user is not the owner of the post
+      if (postDoc.author.toString() !== user._id.toString()) {
+        return AppHttpResponse.send(res, StatusCodes.FORBIDDEN, null);
+      }
+      await PostModel.findOneAndRemove({ _id: id });
       return AppHttpResponse.send(res, StatusCodes.NO_CONTENT, null);
     } catch (err) {
       return next(

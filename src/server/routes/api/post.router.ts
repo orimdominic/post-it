@@ -20,8 +20,8 @@ router.get(Route.Posts, [
 
 router.patch(Route.PostWithIdParam, [
   multerUploads,
-  isAuthenticated,
   updatePostSchemaValidator,
+  isAuthenticated,
   PostController.updateOnePost,
 ]);
 

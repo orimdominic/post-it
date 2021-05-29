@@ -48,6 +48,7 @@ Post It.`,
   PasswordResetCodeSent = "Password reset code sent",
   PasswordResetSuccessful = " Password reset successful",
   NotFound = "Not found",
+  Updated = "Updated",
 }
 
 /**
@@ -56,9 +57,9 @@ Post It.`,
 export enum Route {
   Register = "/auth/register",
   Login = "/auth/login",
-  Logout = "auth/logout",
-  ForgotPassword = "auth/forgot-password",
-  ResetPassword = "auth/password-reset",
+  Logout = "/auth/logout",
+  ForgotPassword = "/auth/forgot-password",
+  ResetPassword = "/auth/password-reset",
   Posts = "/posts",
   PostWithIdParam = "/posts/:id",
 }

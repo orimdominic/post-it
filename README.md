@@ -33,6 +33,8 @@ A mini blogging app
 
 ## Documentation
 
+The API for **Post It** was documented with Postman. [View the Post It API documentation](https://documenter.getpostman.com/view/16008266/TzXzDcNR)
+
 ## Tests
 
 - Run unit tests with `yarn test:unit`
