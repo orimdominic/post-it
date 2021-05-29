@@ -42,9 +42,23 @@ export const createJwt = async (
   payload: Record<string, unknown>
 ): Promise<string> => {
   const algorithm = "RS256";
-  const jwtSecret = await fs.readFile(`${appRoot}/.private.pem`, "utf8");
-  return jwt.sign(payload, jwtSecret, {
+  const privateKey = await fs.readFile(`${appRoot}/.private.pem`, "utf8");
+  return jwt.sign(payload, privateKey, {
     algorithm,
     expiresIn: "1d",
   });
 };
+
+export const decryptJwt = async (token: string) => {
+  const algorithm = "RS256";
+  try {
+    const publicKey = await fs.readFile(`${appRoot}/.private.pem`, "utf8");
+    const claim = jwt.verify(token, publicKey, { algorithms: [algorithm] });
+    return claim;
+  } catch (err) {
+    // log error
+    throw err;
+  }
+};
+
+// TODO: Manage error handling for all code properly

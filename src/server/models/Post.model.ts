@@ -3,7 +3,6 @@ import { ModelName } from "../helpers/constants";
 
 const postSchema = new Schema(
   {
-    author: String,
     authorId: {
       type: Schema.Types.ObjectId,
       ref: ModelName.User,

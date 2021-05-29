@@ -1,5 +1,7 @@
 import { config } from "dotenv";
 
+// TODO: Apply auth to /posts
+
 process.env.NODE_ENV === "production"
   ? config()
   : config({ path: ".local.env" });
@@ -19,8 +21,20 @@ export enum Message {
   EmailExists = "Email already exists",
   UsernameExists = "Username already exists",
 
-  RegMailSubject = " %useremail% 🤝 Post It",
+  RegMailSubject = "%useremail% 🤝 Post It",
   RegMailContent = "Hello! %useremail%! Welcome to Post It!",
+
+  ForgotPasswordMailSubject = "🔐 Post It - Password Reset Code",
+  ForgotPasswordMailContent = `Hello! %useremail%!,
+You requested a password reset.
+Use the code below to reset your password.
+
+CODE: %code%
+
+Ignore this message if you didn't make this request.
+
+Regards,
+Post It`,
 }
 
 /**
@@ -29,6 +43,7 @@ export enum Message {
 export enum Route {
   Register = "/auth/register",
   Login = "/auth/login",
+  ForgotPassword = "auth/forgot-password",
   ResetPassword = "auth/password-reset",
   Posts = "/posts",
   PostWithIdParam = "/posts/:id",
@@ -44,6 +59,7 @@ export const dbURI = process.env.DB_URI
 export enum ModelName {
   Post = "Post",
   User = "User",
+  PasswordRest = "PasswordReset",
 }
 
 export const NodeMailerConfig = {

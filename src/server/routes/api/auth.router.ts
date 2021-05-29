@@ -4,6 +4,8 @@ import { AuthController } from "../../controllers";
 import {
   registerUserSchemaValidator,
   userLoginSchemaValidator,
+  forgotPasswordSchemaValidator,
+  resetPasswordSchemaValidator,
 } from "../../validators";
 import { emailExists } from "../../middlewares";
 
@@ -19,5 +21,17 @@ router.post(Route.Register, [
 ]);
 
 router.post(Route.Login, [userLoginSchemaValidator, AuthController.login]);
+
+router.post(Route.ForgotPassword, [
+  forgotPasswordSchemaValidator,
+  emailExists,
+  AuthController.sendPasswordResetCode,
+]);
+
+router.patch(Route.ResetPassword, [
+  resetPasswordSchemaValidator,
+  emailExists,
+  AuthController.resetPassword,
+]);
 
 export default router;

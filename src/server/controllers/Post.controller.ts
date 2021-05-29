@@ -67,8 +67,6 @@ export class PostController {
     try {
       const postDoc = await PostModel.create({
         ...post,
-        // TODO: Get author name from user in db
-        author: "author",
         createdAt: timestamp,
         updatedAt: timestamp,
       });
