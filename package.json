@@ -15,6 +15,7 @@
     "format:check": "prettier --check ./src",
     "lint": "eslint ./src",
     "sanity-check": "yarn format:check && yarn lint",
+    "test": "NODE_ENV=test jest",
     "test:unit": "NODE_ENV=test jest .unit.test.ts",
     "test:unit-watch": "NODE_ENV=test jest .unit.test.ts --watch --verbose true",
     "test:integration": "NODE_ENV=test jest .integ.test.ts",
