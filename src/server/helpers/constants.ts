@@ -44,6 +44,7 @@ Post It.`,
 
   RegistrationSuccessful = "Registration successful",
   LoginSuccessful = "Login successful",
+  LogoutSuccessful = "Logout successful",
   PasswordResetCodeSent = "Password reset code sent",
   PasswordResetSuccessful = " Password reset successful",
   NotFound = "Not found",
@@ -55,6 +56,7 @@ Post It.`,
 export enum Route {
   Register = "/auth/register",
   Login = "/auth/login",
+  Logout = "auth/logout",
   ForgotPassword = "auth/forgot-password",
   ResetPassword = "auth/password-reset",
   Posts = "/posts",
@@ -72,6 +74,11 @@ export enum ModelName {
   Post = "Post",
   User = "User",
   PasswordRest = "PasswordReset",
+}
+
+export enum Key {
+  AccessToken = "X-Access-Token",
+  Token = "token",
 }
 
 export const NodeMailerConfig = {

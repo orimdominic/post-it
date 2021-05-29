@@ -4,7 +4,7 @@ import { AppHttpError, AppHttpResponse } from "../helpers";
 import { hashPassword, createJwt, comparePassword } from "../helpers/util-fns";
 import { UserModel, PasswordResetModel } from "../models";
 import { NodeMailer } from "../services/emails";
-import { NodeMailerConfig, Message } from "../helpers/constants";
+import { NodeMailerConfig, Message, Key } from "../helpers/constants";
 const { email: mailerEmail, password: mailerPassword } = NodeMailerConfig;
 
 export class AuthController {
@@ -36,8 +36,8 @@ export class AuthController {
 
       const token = await createJwt(userDoc.toJSON());
       res.set("Location", `/users/${userDoc._id}`);
-      res.set("X-Access-Token", token);
-      res.cookie("token", token);
+      res.set(Key.AccessToken, token);
+      res.cookie(Key.Token, token);
 
       return AppHttpResponse.send(
         res,
@@ -77,8 +77,8 @@ export class AuthController {
 
       delete userDoc._doc.password;
       const token = await createJwt(userDoc.toJSON());
-      res.set("X-Access-Token", token);
-      res.cookie("token", token);
+      res.set(Key.AccessToken, token);
+      res.cookie(Key.Token, token);
 
       return AppHttpResponse.send(
         res,
@@ -182,5 +182,22 @@ export class AuthController {
         new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
       );
     }
+  };
+
+  /**
+   * Express middleware - Controller
+   *
+   * Un-authenticate a logged in user
+   */
+  static logout: RequestHandler = async (req, res) => {
+    res.clearCookie(Key.Token);
+    res.setHeader(Key.AccessToken, "");
+
+    return AppHttpResponse.send(
+      res,
+      StatusCodes.OK,
+      null,
+      Message.LogoutSuccessful
+    );
   };
 }
