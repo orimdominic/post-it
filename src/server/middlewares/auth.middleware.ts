@@ -15,7 +15,7 @@ import { UserModel } from "../models";
  * @throws {AppHttpError} if email exists
  */
 export const emailInexistent: RequestHandler = async (req, res, next) => {
-  const email  = req.body.user || req.body.email;
+  const email = req.body.user || req.body.email;
   try {
     const emailExists = await UserModel.exists({ email });
     if (!emailExists) {
@@ -39,7 +39,7 @@ export const emailInexistent: RequestHandler = async (req, res, next) => {
  * @throws {AppHttpError} if email does not exist
  */
 export const emailExists: RequestHandler = async (req, res, next) => {
-  const email  = req.body.user || req.body.email;
+  const email = req.body.user || req.body.email;
   try {
     const emailExists = await UserModel.exists({ email });
     if (emailExists) {

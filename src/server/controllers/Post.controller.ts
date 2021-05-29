@@ -107,9 +107,14 @@ export class PostController {
         }
       );
 
-      return AppHttpResponse.send(res, StatusCodes.OK, {
-        post: updatedPostDoc.toJSON(),
-      }, Message.Updated);
+      return AppHttpResponse.send(
+        res,
+        StatusCodes.OK,
+        {
+          post: updatedPostDoc.toJSON(),
+        },
+        Message.Updated
+      );
     } catch (err) {
       return next(
         new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)

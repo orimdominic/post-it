@@ -48,7 +48,7 @@ Post It.`,
   PasswordResetCodeSent = "Password reset code sent",
   PasswordResetSuccessful = " Password reset successful",
   NotFound = "Not found",
-  Updated = "Updated"
+  Updated = "Updated",
 }
 
 /**
