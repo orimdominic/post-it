@@ -12,7 +12,7 @@ const postSchema = new Schema(
       new Schema(
         {
           URL: String,
-          mimeType: String,
+          mimetype: String,
           name: String,
         },
         {
