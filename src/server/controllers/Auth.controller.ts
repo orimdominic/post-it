@@ -12,7 +12,7 @@ export class AuthController {
     const { email, password } = req.body.user;
     try {
       const hashedPassword = await hashPassword(password);
-      const userDoc = await UserModel.create({
+      const [userDoc] = await UserModel.create({
         email,
         password: hashedPassword,
       });
@@ -27,11 +27,11 @@ export class AuthController {
       await mailer.send();
       const token = await createJwt(userDoc.toJSON());
       res.setHeader("X-Access-Token", token);
+      res.set("Location", `/users/${userDoc._id}`);
       res.cookie("token", token);
       res.status(StatusCodes.CREATED).json(userDoc.toJSON());
     } catch (err) {
       await UserModel.findOneAndRemove({ email });
-      console.log(`@register`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
@@ -41,21 +41,18 @@ export class AuthController {
     try {
       const userDoc = await UserModel.findOne({ email });
       if (!userDoc) {
-       return  res.status(StatusCodes.FORBIDDEN).send();
+        return res.status(StatusCodes.FORBIDDEN).send();
       }
-      const hashedPassword = await hashPassword(password);
-      const passwordsMatch = await comparePassword(password, userDoc.password)
+      const passwordsMatch = await comparePassword(password, userDoc.password);
       if (!passwordsMatch) {
-        console.log(passwordsMatch)
         return res.status(StatusCodes.FORBIDDEN).send();
       }
       delete userDoc._doc.password;
       const token = await createJwt(userDoc.toJSON());
       res.setHeader("X-Access-Token", token);
       res.cookie("token", token);
-      res.status(StatusCodes.OK).json({user: userDoc.toJSON(),token});
+      res.status(StatusCodes.OK).json({ user: userDoc.toJSON(), token });
     } catch (err) {
-      console.log(`@login`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
@@ -83,7 +80,6 @@ export class AuthController {
       // TODO: What's the proper status code?
       res.status(StatusCodes.CREATED).send("Code sent");
     } catch (err) {
-      console.log(`@sendPasswordResetCode`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
@@ -107,7 +103,6 @@ export class AuthController {
       // TODO: send email of password reset success
       res.status(StatusCodes.NO_CONTENT).send();
     } catch (err) {
-      console.log(`@resetPassword`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };

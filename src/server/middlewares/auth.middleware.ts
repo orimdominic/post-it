@@ -33,10 +33,11 @@ export const isLoggedIn: RequestHandler = async (req, res, next) => {
   }
   try {
     const { _id } = (await decryptJwt(token)) as { [_id: string]: string };
-    const userDoc = await UserModel.exists({ _id });
+    const userDoc = await UserModel.findOne({ _id });
     if (!userDoc) {
       return res.status(StatusCodes.UNAUTHORIZED).send();
     }
+    req.body.user = userDoc.toJSON();
     return next();
   } catch (err) {
     console.error(err);

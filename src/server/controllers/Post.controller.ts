@@ -7,6 +7,20 @@ import { PostModel } from "../models";
 // TODO: Write tests
 // TODO: Use AppHttpError
 
+interface CloudinaryFileResponse {
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  path: string;
+  filename: string;
+}
+
+interface PostImage {
+  mimetype: string;
+  URL: string;
+  name: string;
+}
+
 export class PostController {
   static getOnePost: RequestHandler = async (req, res) => {
     const { id } = req.params;
@@ -43,16 +57,33 @@ export class PostController {
   static updateOnePost: RequestHandler = async (req, res) => {
     // TODO: User should be able to upload images
     const { id } = req.params;
-    const { post } = req.body;
+    const { timestamp, content, user } = req.body;
+
+    let images = PostController.parseImages(
+      req.files as CloudinaryFileResponse[]
+    );
     try {
-      const postDoc = await PostModel.findById({ _id: id });
+      const postDoc = await PostModel.findOne({ _id: id });
       if (!postDoc) {
         return res.status(404).send("Not found");
       }
-      postDoc.updatedAt = post.timestamp;
-      postDoc.content = post.content;
-      const updatedPostDoc = await postDoc.save();
-      res.status(StatusCodes.CREATED).json(updatedPostDoc.toJSON());
+      // If user is not the owner of the post
+      if (postDoc.author.toString() !== user._id.toString()) {
+        return res.status(403).send();
+      }
+      const updatedPostDoc = await PostModel.findByIdAndUpdate(
+        { _id: id },
+        {
+          updatedAt: timestamp,
+          content: content,
+          images: images ? [...postDoc.images, ...images] : postDoc.images,
+        },
+        {
+          new: true,
+        }
+      );
+
+      res.status(StatusCodes.OK).json(updatedPostDoc.toJSON());
     } catch (err) {
       console.error(err);
       res.status(500).send(JSON.stringify(err, null, 2));
@@ -61,19 +92,21 @@ export class PostController {
 
   static createOnePost: RequestHandler = async (req, res) => {
     // TODO: User should be able to upload images
-    console.log(req.body)
-    return res.status(200).send()
-    const { post } = req.body;
-    const { timestamp } = post;
-    delete post.timestamp;
+    let images = PostController.parseImages(
+      req.files as CloudinaryFileResponse[]
+    );
+
+    const { content, timestamp, user } = req.body;
     try {
       const postDoc = await PostModel.create({
-        ...post,
+        content: content,
+        author: user._id,
+        images: images ? [...images] : [],
         createdAt: timestamp,
         updatedAt: timestamp,
       });
-      res.setHeader("Location", `/posts/${postDoc.id}`);
-      res.status(StatusCodes.CREATED).json(postDoc.toJSON());
+      res.setHeader("Location", `/posts/${postDoc._id}`);
+      return res.status(StatusCodes.CREATED).json(postDoc.toJSON());
     } catch (err) {
       console.error(err);
       res.status(500).send(JSON.stringify(err, null, 2));
@@ -94,4 +127,23 @@ export class PostController {
       res.status(500).send(JSON.stringify(err, null, 2));
     }
   };
+
+  private static parseImages(
+    files: CloudinaryFileResponse[]
+  ): PostImage[] | undefined {
+    if (!files) {
+      return;
+    }
+    const images = [];
+    for (const file of files) {
+      images.push({
+        URL: file.path,
+        mimetype: file.mimetype,
+        name: file.originalname,
+      });
+    }
+    return images;
+  }
 }
+
+// TODO: Return statement at all `res`

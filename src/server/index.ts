@@ -48,15 +48,16 @@ app.use(
   (err: AppHttpError, req: Request, res: Response, next: NextFunction) => {
     err.message =
       err.message || getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR);
+    err.code =
+      !err.code ||
+      err.code < StatusCodes.CONTINUE ||
+      err.code > StatusCodes.HTTP_VERSION_NOT_SUPPORTED
+        ? err.code
+        : StatusCodes.INTERNAL_SERVER_ERROR;
     res.locals.message = err.message;
     res.locals.error = Server.ENV === "production" ? {} : err;
     // TODO: Log error with logger
-    AppHttpResponse.send(
-      res,
-      err.code || StatusCodes.INTERNAL_SERVER_ERROR,
-      null,
-      err.message
-    );
+    AppHttpResponse.send(res, err.code, null, err.message);
     next();
   }
 );

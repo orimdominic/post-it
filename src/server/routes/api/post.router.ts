@@ -5,8 +5,7 @@ import {
   createPostSchemaValidator,
   updatePostSchemaValidator,
 } from "../../validators";
-import { isLoggedIn } from "../../middlewares";
-import { multerUploads } from "../../configs";
+import { isLoggedIn, multerUploads } from "../../middlewares";
 
 // TODO: Write tests
 
@@ -17,15 +16,16 @@ router.get(Route.PostWithIdParam, [isLoggedIn, PostController.getOnePost]);
 router.get(Route.Posts, [isLoggedIn, PostController.getAllPosts]);
 
 router.patch(Route.PostWithIdParam, [
+  multerUploads,
   updatePostSchemaValidator,
   isLoggedIn,
   PostController.updateOnePost,
 ]);
 
 router.post(Route.Posts, [
+  multerUploads,
   createPostSchemaValidator,
   isLoggedIn,
-  multerUploads,
   PostController.createOnePost,
 ]);
 

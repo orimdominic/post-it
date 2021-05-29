@@ -1,7 +1,7 @@
 import { v2 } from "cloudinary";
 import { CloudinaryConfig } from "../helpers/constants";
 
-const { config, uploader } = v2;
+const { config } = v2;
 const { name, apiKey, apiSecret } = CloudinaryConfig;
 
 config({
@@ -10,4 +10,4 @@ config({
   api_secret: apiSecret,
 });
 
-export { config, uploader };
+export { v2 as cloudinary };

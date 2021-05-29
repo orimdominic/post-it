@@ -6,6 +6,7 @@ import {
   userLoginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  postImageSchema,
 } from "./schemas";
 import { trimInputs } from "../helpers/util-fns";
 import { AppHttpError } from "../helpers/AppHttpError";
@@ -16,12 +17,14 @@ export const createPostSchemaValidator: RequestHandler = async (
   res,
   next
 ) => {
-  const { post: form } = req.body;
-
+  const form = req.body;
+  const files = req.files;
   try {
     trimInputs(form);
 
     await createPostSchema.validateAsync(form, { abortEarly: false });
+    await postImageSchema.validateAsync(files, { abortEarly: false });
+
     return next();
   } catch (err) {
     return next(
@@ -55,12 +58,15 @@ export const updatePostSchemaValidator: RequestHandler = async (
   res,
   next
 ) => {
-  const { post: form } = req.body;
+  const form = req.body;
+  const files = req.files;
 
   try {
     trimInputs(form);
 
     await updatePostSchema.validateAsync(form, { abortEarly: false });
+    await postImageSchema.validateAsync(files, { abortEarly: false });
+
     return next();
   } catch (err) {
     return next(

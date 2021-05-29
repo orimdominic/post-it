@@ -38,14 +38,16 @@ export const trimInputs = (
 export const hashPassword = async (password: string): Promise<string> =>
   await bcrypt.hash(password, 10);
 
-  /**
+/**
  * Compares the password for correctness
  * @param {string} password - the raw password submitted during login
  * @param {string} hash - the hashed password in the database
  * @return {boolean} - true if they are equal
  */
-export const comparePassword = async (password: string, hash: string): Promise<boolean> =>
-bcrypt.compare(password, hash);
+export const comparePassword = async (
+  password: string,
+  hash: string
+): Promise<boolean> => bcrypt.compare(password, hash);
 
 export const createJwt = async (
   payload: Record<string, unknown>
