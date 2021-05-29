@@ -12,7 +12,7 @@ export class AuthController {
     const { email, password } = req.body.user;
     try {
       const hashedPassword = await hashPassword(password);
-      const [userDoc] = await UserModel.create({
+      const userDoc = await UserModel.create({
         email,
         password: hashedPassword,
       });
