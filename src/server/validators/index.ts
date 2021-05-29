@@ -75,7 +75,6 @@ export const userLoginSchemaValidator: RequestHandler = async (
   next
 ) => {
   const form = req.body;
-
   try {
     trimInputs(form);
 

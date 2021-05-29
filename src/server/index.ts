@@ -2,6 +2,7 @@ import http from "http";
 import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
 import compression from "compression";
 import { initMongoDb } from "./configs";
 import { getReasonPhrase, StatusCodes } from "http-status-codes";
@@ -19,7 +20,11 @@ app.use(helmet());
 app.set("trust proxy", 1);
 app.use(cors({ exposedHeaders: "X-Access-Token" }));
 app.use(compression());
-app.use(express.json(), express.urlencoded({ extended: true }));
+app.use(express.json(), express.urlencoded({ extended: true, limit: "50mb" }));
+// TODO: Add Logger.stream as stream
+app.use(
+  morgan(":remote-addr - [:date] :method :url :status - :response-time ms")
+);
 
 app.use((req, res, next) => {
   if (

@@ -61,6 +61,8 @@ export class PostController {
 
   static createOnePost: RequestHandler = async (req, res) => {
     // TODO: User should be able to upload images
+    console.log(req.body)
+    return res.status(200).send()
     const { post } = req.body;
     const { timestamp } = post;
     delete post.timestamp;

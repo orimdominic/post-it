@@ -6,6 +6,7 @@ import {
   updatePostSchemaValidator,
 } from "../../validators";
 import { isLoggedIn } from "../../middlewares";
+import { multerUploads } from "../../configs";
 
 // TODO: Write tests
 
@@ -24,6 +25,7 @@ router.patch(Route.PostWithIdParam, [
 router.post(Route.Posts, [
   createPostSchemaValidator,
   isLoggedIn,
+  multerUploads,
   PostController.createOnePost,
 ]);
 
