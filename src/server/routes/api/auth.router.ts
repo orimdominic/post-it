@@ -31,4 +31,6 @@ router.patch(Route.ResetPassword, [
   AuthController.resetPassword,
 ]);
 
+router.post(Route.Logout, [AuthController.logout]);
+
 export default router;

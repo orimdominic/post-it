@@ -7,7 +7,7 @@ import compression from "compression";
 import { initMongoDb } from "./configs";
 import { getReasonPhrase, StatusCodes } from "http-status-codes";
 import apiRouter from "./routes/api";
-import { Message, Server } from "./helpers/constants";
+import { Message, Server, Key } from "./helpers/constants";
 import { AppHttpResponse, AppHttpError } from "./helpers";
 
 // Start the database
@@ -18,7 +18,7 @@ const app: Application = express();
 
 app.use(helmet());
 app.set("trust proxy", 1);
-app.use(cors({ exposedHeaders: "X-Access-Token" }));
+app.use(cors({ exposedHeaders: Key.AccessToken }));
 app.use(compression());
 app.use(express.json(), express.urlencoded({ extended: true, limit: "50mb" }));
 // TODO: Add Logger.stream as stream
