@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { AppHttpError, AppHttpResponse } from "../helpers";
 import { paginatorMetadata } from "../helpers/util-fns";
+import { Message } from "../helpers/constants";
 import { PostModel } from "../models";
 
 interface CloudinaryFileResponse {
@@ -108,7 +109,7 @@ export class PostController {
 
       return AppHttpResponse.send(res, StatusCodes.OK, {
         post: updatedPostDoc.toJSON(),
-      });
+      }, Message.Updated);
     } catch (err) {
       return next(
         new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
