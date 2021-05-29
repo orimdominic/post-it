@@ -9,8 +9,6 @@ import {
 } from "../../validators";
 import { emailInexistent, emailExists } from "../../middlewares";
 
-// TODO: Write tests
-
 const router = Router();
 
 router.post(Route.Register, [

@@ -4,16 +4,15 @@ import { PostController } from "../../controllers";
 import {
   createPostSchemaValidator,
   updatePostSchemaValidator,
+  getUsersQuerySchemaValidator
 } from "../../validators";
 import { isAuthenticated, multerUploads } from "../../middlewares";
-
-// TODO: Write tests
 
 const router = Router();
 
 router.get(Route.PostWithIdParam, [isAuthenticated, PostController.getOnePost]);
 
-router.get(Route.Posts, [isAuthenticated, PostController.getAllPosts]);
+router.get(Route.Posts, [isAuthenticated,getUsersQuerySchemaValidator, PostController.getAllPosts]);
 
 router.patch(Route.PostWithIdParam, [
   multerUploads,

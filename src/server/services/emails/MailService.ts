@@ -1,3 +1,6 @@
+/**
+ * All mailers must implement this interface
+ */
 export default interface MailService {
   setRecipients: (recipients: string[]) => MailService;
   addRecipient: (recipient: string) => MailService;

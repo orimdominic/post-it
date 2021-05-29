@@ -73,3 +73,7 @@ server.listen(Server.PORT, () => {
 // TODO: Setup Swagger
 // TODO: Make HTTP fit proper response and request styles
 // TODO: Refactor codes wherever duplicitoues
+// TODO: Write tests
+// TODO: setup router for docs
+// TODO: E2E test all routes before submission
+// TODO: Readme docs
