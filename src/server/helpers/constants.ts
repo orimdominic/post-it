@@ -19,7 +19,7 @@ export enum Message {
   RouteNotFound = "Route not found",
 
   EmailExists = "Email already exists",
-  UsernameExists = "Username already exists",
+  EmailInexistent = "Email does not exist",
 
   RegMailSubject = "%useremail% 🤝 Post It",
   RegMailContent = "Hello! %useremail%! Welcome to Post It!",

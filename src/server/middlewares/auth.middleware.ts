@@ -5,30 +5,71 @@ import { Message } from "../helpers/constants";
 import { decryptJwt } from "../helpers/util-fns";
 import { UserModel } from "../models";
 
-export const emailExists: RequestHandler = async (req, res, next) => {
+/**
+ * Express middleware
+ *
+ * Check if an email does not already exist
+ *
+ * Allows continuation if email does not exist
+ *
+ * @throws {AppHttpError} if email exists
+ */
+export const emailInexistent: RequestHandler = async (req, res, next) => {
   const { email } = req.body.user;
   try {
     const emailExists = await UserModel.exists({ email });
     if (!emailExists) {
       return next();
     }
-    return next(new AppHttpError(StatusCodes.OK, Message.EmailExists));
+    return next(new AppHttpError(StatusCodes.BAD_REQUEST, Message.EmailExists));
   } catch (err) {
     return next(err);
   }
 };
 
-export const isLoggedIn: RequestHandler = async (req, res, next) => {
+/**
+ * Express middleware
+ *
+ * Check if an email already exists
+ *
+ * Allows continuation if exists
+ *
+ * @throws {AppHttpError} if email does not exist
+ */
+export const emailExists: RequestHandler = async (req, res, next) => {
+  const { email } = req.body.user;
+  try {
+    const emailExists = await UserModel.exists({ email });
+    if (emailExists) {
+      return next();
+    }
+    return next(
+      new AppHttpError(StatusCodes.BAD_REQUEST, Message.EmailInexistent)
+    );
+  } catch (err) {
+    return next(err);
+  }
+};
+
+/**
+ * Express middleware
+ *
+ * Check if a user is authenticated via the authorization header or
+ * cookie token
+ *
+ * Attaches `user` to `req.body` if authenticated
+ * @throws {AppHttpError} if not authenticated
+ */
+export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization) {
-    res.status(401).send();
+    res.status(StatusCodes.UNAUTHORIZED).send();
   }
   const token =
     authorization && authorization.includes("Bearer")
       ? authorization.replace("Bearer ", "")
       : req.cookies.token;
   if (!token) {
-    // unauthorized
     res.status(StatusCodes.UNAUTHORIZED).send();
   }
   try {
@@ -37,6 +78,7 @@ export const isLoggedIn: RequestHandler = async (req, res, next) => {
     if (!userDoc) {
       return res.status(StatusCodes.UNAUTHORIZED).send();
     }
+
     req.body.user = userDoc.toJSON();
     return next();
   } catch (err) {

@@ -5,30 +5,34 @@ import {
   createPostSchemaValidator,
   updatePostSchemaValidator,
 } from "../../validators";
-import { isLoggedIn, multerUploads } from "../../middlewares";
+import { isAuthenticated, multerUploads } from "../../middlewares";
 
 // TODO: Write tests
 
 const router = Router();
 
-router.get(Route.PostWithIdParam, [isLoggedIn, PostController.getOnePost]);
+router.get(Route.PostWithIdParam, [isAuthenticated, PostController.getOnePost]);
 
-router.get(Route.Posts, [isLoggedIn, PostController.getAllPosts]);
+router.get(Route.Posts, [isAuthenticated, PostController.getAllPosts]);
 
 router.patch(Route.PostWithIdParam, [
   multerUploads,
+  isAuthenticated,
   updatePostSchemaValidator,
-  isLoggedIn,
   PostController.updateOnePost,
 ]);
 
 router.post(Route.Posts, [
   multerUploads,
   createPostSchemaValidator,
-  isLoggedIn,
+  isAuthenticated,
   PostController.createOnePost,
 ]);
 
-router.delete(Route.PostWithIdParam, isLoggedIn, PostController.deleteOnePost);
+router.delete(
+  Route.PostWithIdParam,
+  isAuthenticated,
+  PostController.deleteOnePost
+);
 
 export default router;

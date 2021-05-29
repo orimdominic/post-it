@@ -7,16 +7,15 @@ import {
   forgotPasswordSchemaValidator,
   resetPasswordSchemaValidator,
 } from "../../validators";
-import { emailExists } from "../../middlewares";
+import { emailInexistent, emailExists } from "../../middlewares";
 
 // TODO: Write tests
-// TODO: Include relevant middlewares
 
 const router = Router();
 
 router.post(Route.Register, [
   registerUserSchemaValidator,
-  emailExists,
+  emailInexistent,
   AuthController.register,
 ]);
 
