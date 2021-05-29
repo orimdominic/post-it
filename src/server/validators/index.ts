@@ -7,8 +7,7 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   postImageSchema,
-  getUsersQuerySchema
-
+  getUsersQuerySchema,
 } from "./schemas";
 import { trimInputs } from "../helpers/util-fns";
 import { AppHttpError } from "../helpers/AppHttpError";

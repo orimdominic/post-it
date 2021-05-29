@@ -1,11 +1,13 @@
 import multer from "multer";
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import { cloudinary } from "../configs";
 
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  folder: "post-it",
-  allowedFormats: ["jpg", "png", "jpeg"],
+  params: {
+    folder: () => "post-it",
+    allowed_formats: () => ["jpg", "png", "jpeg"],
+  },
 });
 
 /**

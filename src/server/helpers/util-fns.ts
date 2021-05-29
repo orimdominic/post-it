@@ -70,13 +70,18 @@ export const createJwt = async (
  * @param {string} token the JWT
  * @returns Promise<Record<string, unknown>> the payload
  */
-export const decryptJwt = async (token: string) => {
+export const decryptJwt = async (
+  token: string
+): Promise<Record<string, unknown>> => {
   const algorithm = "RS256";
   try {
     const publicKey = await fs.readFile(`${appRoot}/.private.pem`, "utf8");
-    const payload = jwt.verify(token, publicKey, { algorithms: [algorithm] });
+    const payload = jwt.verify(token, publicKey, {
+      algorithms: [algorithm],
+    }) as Record<string, unknown>;
     return payload;
   } catch (err) {
+    console.error(err);
     throw err;
   }
 };
@@ -87,14 +92,14 @@ export const decryptJwt = async (token: string) => {
  * @param {string} page - requested page number
  * @param {string} limit - requested batched amount
  * @param {boolean} lite - if we need only part of the document, albeit the whole collection
- * @returns {start: number, parsedLimit: number, main: Record<string, number>}
+ * @returns {start, parsedLimit: number, main: Record<string, number>}
  */
 export const paginatorMetadata = (
   total: number,
   page: string,
   limit: string,
-  lite: boolean = false
-) => {
+  lite = false
+): { start: number; parsedLimit: number; main: Record<string, number> } => {
   const currentPage = parseInt(page, 10);
   const previousPage = currentPage - 1;
   const nextPage = currentPage + 1;

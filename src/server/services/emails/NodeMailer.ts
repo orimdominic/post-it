@@ -134,6 +134,7 @@ export default class NodeMailer implements MailService {
       });
       return info;
     } catch (err) {
+      console.error(err);
       throw err;
     }
   }

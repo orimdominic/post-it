@@ -28,7 +28,8 @@ jobs:
       - run: node -v
       - run: yarn -v
       - run: yarn install
-      - run: yarn test-units
+      - run: yarn test:unit
+      - run: yarn test:integration
   build:
     runs-on: ubuntu-latest
     steps:

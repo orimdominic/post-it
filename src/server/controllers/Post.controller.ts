@@ -4,8 +4,6 @@ import { AppHttpError, AppHttpResponse } from "../helpers";
 import { paginatorMetadata } from "../helpers/util-fns";
 import { PostModel } from "../models";
 
-// TODO: Write tests
-
 interface CloudinaryFileResponse {
   originalname: string;
   encoding: string;
@@ -84,7 +82,7 @@ export class PostController {
     const { id } = req.params;
     const { timestamp, content, user } = req.body;
 
-    let images = PostController.parseImages(
+    const images = PostController.parseImages(
       req.files as CloudinaryFileResponse[]
     );
     try {
@@ -124,7 +122,7 @@ export class PostController {
    * Create a post and return it to the client
    */
   static createOnePost: RequestHandler = async (req, res, next) => {
-    let images = PostController.parseImages(
+    const images = PostController.parseImages(
       req.files as CloudinaryFileResponse[]
     );
 
