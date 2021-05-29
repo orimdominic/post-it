@@ -1,11 +1,10 @@
 import { RequestHandler } from "express";
-import { StatusCodes, getReasonPhrase } from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
+import { AppHttpError, AppHttpResponse } from "../helpers";
+import { paginatorMetadata } from "../helpers/util-fns";
 import { PostModel } from "../models";
 
-// TODO: Set response data to follow a format
-// TODO: Write docs for controller fns
 // TODO: Write tests
-// TODO: Use AppHttpError
 
 interface CloudinaryFileResponse {
   originalname: string;
@@ -22,40 +21,66 @@ interface PostImage {
 }
 
 export class PostController {
-  static getOnePost: RequestHandler = async (req, res) => {
+  /**
+   * Express middleware - Controller
+   *
+   * Returns a post fetched by its id to the client
+   */
+  static getOnePost: RequestHandler = async (req, res, next) => {
     const { id } = req.params;
 
     try {
       const postDoc = await PostModel.findById({ _id: id });
       if (!postDoc) {
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .send(getReasonPhrase(StatusCodes.NOT_FOUND));
+        return AppHttpResponse.send(res, StatusCodes.NOT_FOUND, null);
       }
-      return res.status(StatusCodes.OK).json(postDoc.toJSON());
+      return AppHttpResponse.send(res, StatusCodes.NOT_FOUND, {
+        post: postDoc.toJSON(),
+      });
     } catch (err) {
-      console.error(err);
-      res.status(500).send(JSON.stringify(err, null, 2));
+      return next(
+        new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+      );
     }
   };
 
-  static getAllPosts: RequestHandler = async (req, res) => {
-    // TODO: Add limit and skip
-    // TODO: Add length, size etc
+  /**
+   * Express middleware - Controller
+   *
+   * Returns list of posts to the client. Uses `limit` and `page`
+   */
+  static getAllPosts: RequestHandler = async (req, res, next) => {
+    let { limit, page } = req.query;
+    page = page ? page.toString() : "1";
+    limit = limit ? limit.toString() : "10";
+
     try {
-      const postDocs = await PostModel.find();
-      if (!postDocs) {
-        return res.status(StatusCodes.OK).json([]);
-      }
-      return res.status(StatusCodes.OK).json(postDocs);
+      const totalPostDocs = await PostModel.estimatedDocumentCount();
+      const { start, main, parsedLimit } = paginatorMetadata(
+        totalPostDocs,
+        page,
+        limit
+      );
+      const postDocs = await PostModel.find().skip(start).limit(parsedLimit);
+      return AppHttpResponse.send(
+        res,
+        StatusCodes.OK,
+        { ...main, postDocs },
+        `${postDocs.length}/${totalPostDocs}`
+      );
     } catch (err) {
-      console.error(err);
-      res.status(500).send(JSON.stringify(err, null, 2));
+      return next(
+        new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+      );
     }
   };
 
-  static updateOnePost: RequestHandler = async (req, res) => {
-    // TODO: User should be able to upload images
+  /**
+   * Express middleware - Controller
+   *
+   * Updates a post by its id and returns the updated post to the client
+   */
+  static updateOnePost: RequestHandler = async (req, res, next) => {
     const { id } = req.params;
     const { timestamp, content, user } = req.body;
 
@@ -65,11 +90,11 @@ export class PostController {
     try {
       const postDoc = await PostModel.findOne({ _id: id });
       if (!postDoc) {
-        return res.status(404).send("Not found");
+        return AppHttpResponse.send(res, StatusCodes.NOT_FOUND, null);
       }
       // If user is not the owner of the post
       if (postDoc.author.toString() !== user._id.toString()) {
-        return res.status(403).send();
+        return AppHttpResponse.send(res, StatusCodes.FORBIDDEN, null);
       }
       const updatedPostDoc = await PostModel.findByIdAndUpdate(
         { _id: id },
@@ -83,15 +108,22 @@ export class PostController {
         }
       );
 
-      res.status(StatusCodes.OK).json(updatedPostDoc.toJSON());
+      return AppHttpResponse.send(res, StatusCodes.OK, {
+        post: updatedPostDoc.toJSON(),
+      });
     } catch (err) {
-      console.error(err);
-      res.status(500).send(JSON.stringify(err, null, 2));
+      return next(
+        new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+      );
     }
   };
 
-  static createOnePost: RequestHandler = async (req, res) => {
-    // TODO: User should be able to upload images
+  /**
+   * Express middleware - Controller
+   *
+   * Create a post and return it to the client
+   */
+  static createOnePost: RequestHandler = async (req, res, next) => {
     let images = PostController.parseImages(
       req.files as CloudinaryFileResponse[]
     );
@@ -105,35 +137,50 @@ export class PostController {
         createdAt: timestamp,
         updatedAt: timestamp,
       });
+
       res.setHeader("Location", `/posts/${postDoc._id}`);
-      return res.status(StatusCodes.CREATED).json(postDoc.toJSON());
+      return AppHttpResponse.send(res, StatusCodes.CREATED, {
+        post: postDoc.toJSON(),
+      });
     } catch (err) {
-      console.error(err);
-      res.status(500).send(JSON.stringify(err, null, 2));
+      return next(
+        new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+      );
     }
   };
 
-  static deleteOnePost: RequestHandler = async (req, res) => {
+  /**
+   * Express middleware - Controller
+   *
+   * Delete a post by its id
+   */
+  static deleteOnePost: RequestHandler = async (req, res, next) => {
     const { id } = req.params;
     try {
       const postDoc = await PostModel.findById({ _id: id });
       if (!postDoc) {
         return res.status(404).send("Not found");
       }
-      await PostModel.findByIdAndDelete(id);
-      res.status(StatusCodes.NO_CONTENT).send();
+      return AppHttpResponse.send(res, StatusCodes.NO_CONTENT, null);
     } catch (err) {
-      console.error(err);
-      res.status(500).send(JSON.stringify(err, null, 2));
+      return next(
+        new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+      );
     }
   };
 
+  /**
+   * Extract images from `req.file` and parse into db model
+   * @param {CloudinaryFileResponse[]} files files to parse
+   * @returns {PostImage[] | undefined} the parsed files or undefined if no files are found
+   */
   private static parseImages(
     files: CloudinaryFileResponse[]
   ): PostImage[] | undefined {
     if (!files) {
       return;
     }
+
     const images = [];
     for (const file of files) {
       images.push({
@@ -145,5 +192,3 @@ export class PostController {
     return images;
   }
 }
-
-// TODO: Return statement at all `res`

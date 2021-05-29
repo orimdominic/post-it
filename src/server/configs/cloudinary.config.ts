@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Cloudinary configuration
+ */
+
 import { v2 } from "cloudinary";
 import { CloudinaryConfig } from "../helpers/constants";
 

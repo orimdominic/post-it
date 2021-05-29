@@ -7,6 +7,8 @@ import {
   forgotPasswordSchema,
   resetPasswordSchema,
   postImageSchema,
+  getUsersQuerySchema
+
 } from "./schemas";
 import { trimInputs } from "../helpers/util-fns";
 import { AppHttpError } from "../helpers/AppHttpError";
@@ -132,4 +134,22 @@ export const resetPasswordSchemaValidator: RequestHandler = async (
   }
 };
 
-// TODO: E2E test all routes before submission
+export const getUsersQuerySchemaValidator: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const form = req.query;
+
+  try {
+    trimInputs(form);
+
+    await getUsersQuerySchema.validateAsync(form, { abortEarly: false });
+
+    return next();
+  } catch (err) {
+    return next(
+      new AppHttpError(StatusCodes.UNPROCESSABLE_ENTITY, err.message)
+    );
+  }
+};

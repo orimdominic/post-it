@@ -19,12 +19,12 @@ export enum Message {
   RouteNotFound = "Route not found",
 
   EmailExists = "Email already exists",
-  UsernameExists = "Username already exists",
+  EmailInexistent = "Email does not exist",
 
   RegMailSubject = "%useremail% 🤝 Post It",
   RegMailContent = "Hello! %useremail%! Welcome to Post It!",
 
-  ForgotPasswordMailSubject = "🔐 Post It - Password Reset Code",
+  ForgotPasswordMailSubject = "🔐 Post It - Password Reset?",
   ForgotPasswordMailContent = `Hello! %useremail%!,
 You requested a password reset.
 Use the code below to reset your password.
@@ -34,7 +34,19 @@ CODE: %code%
 Ignore this message if you didn't make this request.
 
 Regards,
-Post It`,
+Post It.`,
+  ResetPasswordMailSubject = "🔐 Post It - Password Reset Successful",
+  ResetPasswordMailContent = `Hello! %useremail%!,
+Just letting you know that you have successfully reset your password 😉.
+
+Regards,
+Post It.`,
+
+  RegistrationSuccessful = "Registration successful",
+  LoginSuccessful = "Login successful",
+  PasswordResetCodeSent = "Password reset code sent",
+  PasswordResetSuccessful = " Password reset successful",
+  NotFound = "Not found",
 }
 
 /**

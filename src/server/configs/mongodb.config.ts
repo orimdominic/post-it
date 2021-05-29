@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Mongodb setup
+ */
+
 import { connection, connect } from "mongoose";
 import { dbURI } from "../helpers/constants";
 

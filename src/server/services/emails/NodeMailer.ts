@@ -12,6 +12,10 @@ export default class NodeMailer implements MailService {
   private body: string | undefined;
   private recipients: string[];
 
+  /**
+   * @param {string} email The sender email
+   * @param {string} password The password for the sender email
+   */
   constructor(private email: string, private password: string) {
     this.transporter = nodemailer.createTransport({
       port: 465,
@@ -26,12 +30,23 @@ export default class NodeMailer implements MailService {
     this.recipients = [];
   }
 
+  /**
+   * Add a set of recipients for the mail
+   * @param {string []} recipients
+   * @returns {NodeMailer} this object
+   */
   setRecipients(recipients: string[]): NodeMailer {
-    // TODO: Remove duplicates
     this.recipients.concat(recipients);
+    // TODO: Remove duplicates
+    this.recipients = [...new Set(this.recipients)];
     return this;
   }
 
+  /**
+   * Add a recipient to the recipient set for the mail
+   * @param {string } recipient
+   * @returns {NodeMailer} this object
+   */
   addRecipient(recipient: string): NodeMailer {
     if (this.recipients.includes(recipient.toLowerCase())) {
       return this;
@@ -40,6 +55,11 @@ export default class NodeMailer implements MailService {
     return this;
   }
 
+  /**
+   * Remove a recipient from the recipient set for the mail
+   * @param {string } recipient
+   * @returns {NodeMailer} this object
+   */
   removeRecipient(recipient: string): NodeMailer {
     if (this.recipients.includes(recipient.toLowerCase())) {
       this.recipients = this.recipients.filter(
@@ -50,17 +70,30 @@ export default class NodeMailer implements MailService {
     return this;
   }
 
+  /**
+   * Set the subject of the mail the mail
+   * @param {string } subject
+   * @returns {NodeMailer} this object
+   */
   setSubject(subject: string): NodeMailer {
     this.subject = subject;
     return this;
   }
 
+  /**
+   * Set the content and type of the mail
+   * @param {string } subject
+   * @returns {NodeMailer} this object
+   */
   setContent(type: "html" | "text", body: string): NodeMailer {
     this.type = type;
     this.body = body;
     return this;
   }
 
+  /**
+   * Validate that all necessary params are set before sending a mail
+   */
   private validateParamsBeforeSending(): void {
     if (!this.type) {
       throw new Error("Email has no set type");
@@ -86,6 +119,10 @@ export default class NodeMailer implements MailService {
         };
   }
 
+  /**
+   * Send the mail
+   * @returns Promise<SentMessageInfo> information about the mail
+   */
   async send(): Promise<SentMessageInfo> {
     try {
       this.validateParamsBeforeSending();
@@ -97,8 +134,6 @@ export default class NodeMailer implements MailService {
       });
       return info;
     } catch (err) {
-      // Use logger to log error
-      console.error(err);
       throw err;
     }
   }
