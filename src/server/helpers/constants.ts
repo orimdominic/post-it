@@ -68,3 +68,9 @@ export const NodeMailerConfig = {
     ? process.env.NODEMAILER_PASSWORD
     : "",
 };
+
+export const CloudinaryConfig = {
+  name: process.env.CLOUD_NAME ? process.env.CLOUD_NAME : "",
+  apiKey: process.env.CLOUD_API_KEY ? process.env.CLOUD_API_KEY : "",
+  apiSecret: process.env.CLOUD_API_SECRET ? process.env.CLOUD_API_SECRET : "",
+};

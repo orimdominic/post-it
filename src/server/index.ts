@@ -2,6 +2,7 @@ import http from "http";
 import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
 import compression from "compression";
 import { initMongoDb } from "./configs";
 import { getReasonPhrase, StatusCodes } from "http-status-codes";
@@ -19,7 +20,11 @@ app.use(helmet());
 app.set("trust proxy", 1);
 app.use(cors({ exposedHeaders: "X-Access-Token" }));
 app.use(compression());
-app.use(express.json(), express.urlencoded({ extended: true }));
+app.use(express.json(), express.urlencoded({ extended: true, limit: "50mb" }));
+// TODO: Add Logger.stream as stream
+app.use(
+  morgan(":remote-addr - [:date] :method :url :status - :response-time ms")
+);
 
 app.use((req, res, next) => {
   if (
@@ -43,15 +48,16 @@ app.use(
   (err: AppHttpError, req: Request, res: Response, next: NextFunction) => {
     err.message =
       err.message || getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR);
+    err.code =
+      !err.code ||
+      err.code < StatusCodes.CONTINUE ||
+      err.code > StatusCodes.HTTP_VERSION_NOT_SUPPORTED
+        ? err.code
+        : StatusCodes.INTERNAL_SERVER_ERROR;
     res.locals.message = err.message;
     res.locals.error = Server.ENV === "production" ? {} : err;
     // TODO: Log error with logger
-    AppHttpResponse.send(
-      res,
-      err.code || StatusCodes.INTERNAL_SERVER_ERROR,
-      null,
-      err.message
-    );
+    AppHttpResponse.send(res, err.code, null, err.message);
     next();
   }
 );

@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { AppHttpError } from "../helpers";
-import { hashPassword, createJwt } from "../helpers/util-fns";
+import { hashPassword, createJwt, comparePassword } from "../helpers/util-fns";
 import { UserModel, PasswordResetModel } from "../models";
 import { NodeMailer } from "../services/emails";
 import { NodeMailerConfig, Message } from "../helpers/constants";
@@ -26,12 +26,12 @@ export class AuthController {
         .addRecipient(email);
       await mailer.send();
       const token = await createJwt(userDoc.toJSON());
-      res.header("X-Access-Token", token);
+      res.setHeader("X-Access-Token", token);
+      res.set("Location", `/users/${userDoc._id}`);
       res.cookie("token", token);
       res.status(StatusCodes.CREATED).json(userDoc.toJSON());
     } catch (err) {
       await UserModel.findOneAndRemove({ email });
-      console.log(`@register`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
@@ -41,19 +41,18 @@ export class AuthController {
     try {
       const userDoc = await UserModel.findOne({ email });
       if (!userDoc) {
-        res.status(StatusCodes.FORBIDDEN).send();
+        return res.status(StatusCodes.FORBIDDEN).send();
       }
-      const hashedPassword = await createJwt(password);
-      if (hashedPassword !== userDoc.password) {
-        res.status(StatusCodes.FORBIDDEN).send();
+      const passwordsMatch = await comparePassword(password, userDoc.password);
+      if (!passwordsMatch) {
+        return res.status(StatusCodes.FORBIDDEN).send();
       }
       delete userDoc._doc.password;
       const token = await createJwt(userDoc.toJSON());
-      res.header("X-Access-Token", token);
+      res.setHeader("X-Access-Token", token);
       res.cookie("token", token);
-      res.status(StatusCodes.OK).json(userDoc.toJSON());
+      res.status(StatusCodes.OK).json({ user: userDoc.toJSON(), token });
     } catch (err) {
-      console.log(`@login`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
@@ -81,7 +80,6 @@ export class AuthController {
       // TODO: What's the proper status code?
       res.status(StatusCodes.CREATED).send("Code sent");
     } catch (err) {
-      console.log(`@sendPasswordResetCode`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
@@ -102,9 +100,9 @@ export class AuthController {
       userDoc.password = hashedPassword;
       const updatedUserDoc = userDoc.save();
       delete updatedUserDoc._doc.password;
+      // TODO: send email of password reset success
       res.status(StatusCodes.NO_CONTENT).send();
     } catch (err) {
-      console.log(`@resetPassword`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
