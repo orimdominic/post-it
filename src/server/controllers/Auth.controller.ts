@@ -17,7 +17,6 @@ export class AuthController {
         password: hashedPassword,
       });
       delete userDoc._doc.password;
-      const token = await createJwt(userDoc.toJSON());
       const mailer = new NodeMailer(mailerEmail as string, mailerPassword)
         .setSubject(Message.RegMailSubject.replace("%useremail%", email))
         .setContent(
@@ -26,6 +25,7 @@ export class AuthController {
         )
         .addRecipient(email);
       await mailer.send();
+      const token = await createJwt(userDoc.toJSON());
       res.header("X-Access-Token", token);
       res.cookie("token", token);
       res.status(StatusCodes.CREATED).json(userDoc.toJSON());
@@ -78,13 +78,36 @@ export class AuthController {
         )
         .addRecipient(email);
       await mailer.send();
-      // TODO: What's the proper stus code?
+      // TODO: What's the proper status code?
       res.status(StatusCodes.CREATED).send("Code sent");
     } catch (err) {
       console.log(`@sendPasswordResetCode`, err);
       next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
     }
   };
+
+  static resetPassword: RequestHandler = async (req, res, next) => {
+    const { email, code, password } = req.body;
+    try {
+      const passwordResetDoc = await PasswordResetModel.findOne({
+        code,
+        email,
+      });
+      if (!passwordResetDoc) {
+        // TODO: Proper response code??
+        res.status(403).send();
+      }
+      const userDoc = await UserModel.findOne({ email });
+      const hashedPassword = await hashPassword(password);
+      userDoc.password = hashedPassword;
+      const updatedUserDoc = userDoc.save();
+      delete updatedUserDoc._doc.password;
+      res.status(StatusCodes.NO_CONTENT).send();
+    } catch (err) {
+      console.log(`@resetPassword`, err);
+      next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
+    }
+  };
 }
 
-// TODO: set stings to mssage constants
+// TODO: set st5ings to mssage constants

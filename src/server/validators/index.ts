@@ -5,6 +5,7 @@ import {
   registerUserSchema,
   userLoginSchema,
   forgotPasswordSchema,
+  resetPasswordSchema,
 } from "./schemas";
 import { trimInputs } from "../helpers/util-fns";
 import { AppHttpError } from "../helpers/AppHttpError";
@@ -73,7 +74,7 @@ export const userLoginSchemaValidator: RequestHandler = async (
   res,
   next
 ) => {
-  const { post: form } = req.body;
+  const form = req.body;
 
   try {
     trimInputs(form);
@@ -92,7 +93,7 @@ export const forgotPasswordSchemaValidator: RequestHandler = async (
   res,
   next
 ) => {
-  const { post: form } = req.body;
+  const form = req.body;
 
   try {
     trimInputs(form);
@@ -105,3 +106,25 @@ export const forgotPasswordSchemaValidator: RequestHandler = async (
     );
   }
 };
+
+export const resetPasswordSchemaValidator: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const form = req.body;
+
+  try {
+    trimInputs(form);
+
+    await resetPasswordSchema.validateAsync(form, { abortEarly: false });
+
+    return next();
+  } catch (err) {
+    return next(
+      new AppHttpError(StatusCodes.UNPROCESSABLE_ENTITY, err.message)
+    );
+  }
+};
+
+// TODO: E2E test all routes before submission
