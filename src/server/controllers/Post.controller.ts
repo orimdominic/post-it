@@ -154,11 +154,17 @@ export class PostController {
    */
   static deleteOnePost: RequestHandler = async (req, res, next) => {
     const { id } = req.params;
+    const { user } = req.body;
     try {
       const postDoc = await PostModel.findById({ _id: id });
       if (!postDoc) {
-        return res.status(404).send("Not found");
+        return AppHttpResponse.send(res, StatusCodes.NOT_FOUND, null);
       }
+      // If user is not the owner of the post
+      if (postDoc.author.toString() !== user._id.toString()) {
+        return AppHttpResponse.send(res, StatusCodes.FORBIDDEN, null);
+      }
+      await PostModel.findOneAndRemove({ _id: id });
       return AppHttpResponse.send(res, StatusCodes.NO_CONTENT, null);
     } catch (err) {
       return next(
