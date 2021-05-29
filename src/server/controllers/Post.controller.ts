@@ -32,7 +32,7 @@ export class PostController {
       if (!postDoc) {
         return AppHttpResponse.send(res, StatusCodes.NOT_FOUND, null);
       }
-      return AppHttpResponse.send(res, StatusCodes.NOT_FOUND, {
+      return AppHttpResponse.send(res, StatusCodes.OK, {
         post: postDoc.toJSON(),
       });
     } catch (err) {
