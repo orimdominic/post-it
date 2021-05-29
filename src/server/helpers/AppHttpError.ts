@@ -1,5 +1,10 @@
 import { StatusCodes } from "http-status-codes";
 
+/**
+ * @class AppHttpError
+ * @extends Error
+ * HTTP response error type for the app
+ */
 export class AppHttpError extends Error {
   /**
    * @constructor

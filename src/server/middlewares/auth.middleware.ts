@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { AppHttpError } from "../helpers";
+import { AppHttpError, AppHttpResponse } from "../helpers";
 import { Message } from "../helpers/constants";
 import { decryptJwt } from "../helpers/util-fns";
 import { UserModel } from "../models";
@@ -23,7 +23,9 @@ export const emailInexistent: RequestHandler = async (req, res, next) => {
     }
     return next(new AppHttpError(StatusCodes.BAD_REQUEST, Message.EmailExists));
   } catch (err) {
-    return next(err);
+    return next(
+      new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+    );
   }
 };
 
@@ -32,7 +34,7 @@ export const emailInexistent: RequestHandler = async (req, res, next) => {
  *
  * Check if an email already exists
  *
- * Allows continuation if exists
+ * Allows continuation if it exists
  *
  * @throws {AppHttpError} if email does not exist
  */
@@ -47,7 +49,7 @@ export const emailExists: RequestHandler = async (req, res, next) => {
       new AppHttpError(StatusCodes.BAD_REQUEST, Message.EmailInexistent)
     );
   } catch (err) {
-    return next(err);
+    return next(new AppHttpError(StatusCodes.BAD_REQUEST, err.message));
   }
 };
 
@@ -57,33 +59,31 @@ export const emailExists: RequestHandler = async (req, res, next) => {
  * Check if a user is authenticated via the authorization header or
  * cookie token
  *
- * Attaches `user` to `req.body` if authenticated
- * @throws {AppHttpError} if not authenticated
+ * Attaches `user` to `req.body` if authenticated.
+ * Terminates request if unauthenticated
  */
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization) {
-    res.status(StatusCodes.UNAUTHORIZED).send();
+    return AppHttpResponse.send(res, StatusCodes.UNAUTHORIZED, null);
   }
   const token =
     authorization && authorization.includes("Bearer")
       ? authorization.replace("Bearer ", "")
       : req.cookies.token;
   if (!token) {
-    res.status(StatusCodes.UNAUTHORIZED).send();
+    return AppHttpResponse.send(res, StatusCodes.UNAUTHORIZED, null);
   }
   try {
     const { _id } = (await decryptJwt(token)) as { [_id: string]: string };
     const userDoc = await UserModel.findOne({ _id });
     if (!userDoc) {
-      return res.status(StatusCodes.UNAUTHORIZED).send();
+      return AppHttpResponse.send(res, StatusCodes.UNAUTHORIZED, null);
     }
 
     req.body.user = userDoc.toJSON();
     return next();
   } catch (err) {
-    console.error(err);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
+    return next(new AppHttpError(StatusCodes.BAD_REQUEST, err.message));
   }
 };
-// TODO: Refactor codes wherever duplicitoues

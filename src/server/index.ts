@@ -71,5 +71,5 @@ server.listen(Server.PORT, () => {
 
 // TODO: Setup Logger
 // TODO: Setup Swagger
-// TODO: Email service setup
-// Make HTTP fit proper response and request styles
+// TODO: Make HTTP fit proper response and request styles
+// TODO: Refactor codes wherever duplicitoues

@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { AppHttpError } from "../helpers";
+import { AppHttpError, AppHttpResponse } from "../helpers";
 import { hashPassword, createJwt, comparePassword } from "../helpers/util-fns";
 import { UserModel, PasswordResetModel } from "../models";
 import { NodeMailer } from "../services/emails";
@@ -8,6 +8,13 @@ import { NodeMailerConfig, Message } from "../helpers/constants";
 const { email: mailerEmail, password: mailerPassword } = NodeMailerConfig;
 
 export class AuthController {
+  /**
+   * Express middleware - Controller
+   *
+   * Persist a user to the database and authenticate the user
+   *
+   * Attaches `token` and `X-Access-Token` to header if successful
+   */
   static register: RequestHandler = async (req, res, next) => {
     const { email, password } = req.body.user;
     try {
@@ -17,6 +24,7 @@ export class AuthController {
         password: hashedPassword,
       });
       delete userDoc._doc.password;
+
       const mailer = new NodeMailer(mailerEmail as string, mailerPassword)
         .setSubject(Message.RegMailSubject.replace("%useremail%", email))
         .setContent(
@@ -25,47 +33,82 @@ export class AuthController {
         )
         .addRecipient(email);
       await mailer.send();
+
       const token = await createJwt(userDoc.toJSON());
-      res.setHeader("X-Access-Token", token);
       res.set("Location", `/users/${userDoc._id}`);
+      res.set("X-Access-Token", token);
       res.cookie("token", token);
-      res.status(StatusCodes.CREATED).json(userDoc.toJSON());
+
+      return AppHttpResponse.send(
+        res,
+        StatusCodes.CREATED,
+        {
+          user: userDoc.toJSON(),
+        },
+        Message.RegistrationSuccessful
+      );
     } catch (err) {
       await UserModel.findOneAndRemove({ email });
-      next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
+      return next(
+        new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+      );
     }
   };
 
+  /**
+   * Express middleware - Controller
+   *
+   * Authenticate a user via their email and password
+   *
+   * Attaches `token` and `X-Access-Token` to header if successful
+   */
   static login: RequestHandler = async (req, res, next) => {
     const { email, password } = req.body;
     try {
       const userDoc = await UserModel.findOne({ email });
       if (!userDoc) {
-        return res.status(StatusCodes.FORBIDDEN).send();
+        return AppHttpResponse.send(res, StatusCodes.UNAUTHORIZED, null);
       }
+
       const passwordsMatch = await comparePassword(password, userDoc.password);
       if (!passwordsMatch) {
-        return res.status(StatusCodes.FORBIDDEN).send();
+        return AppHttpResponse.send(res, StatusCodes.UNAUTHORIZED, null);
       }
+
       delete userDoc._doc.password;
       const token = await createJwt(userDoc.toJSON());
-      res.setHeader("X-Access-Token", token);
+      res.set("X-Access-Token", token);
       res.cookie("token", token);
-      res.status(StatusCodes.OK).json({ user: userDoc.toJSON(), token });
+
+      return AppHttpResponse.send(
+        res,
+        StatusCodes.OK,
+        {
+          user: userDoc.toJSON(),
+        },
+        Message.LoginSuccessful
+      );
     } catch (err) {
-      next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
+      return next(
+        new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+      );
     }
   };
 
+  /**
+   * Express middleware - Controller
+   *
+   * Send password reset code to user email
+   */
   static sendPasswordResetCode: RequestHandler = async (req, res, next) => {
     const { email } = req.body;
+    const [code] = (Math.random() * Math.pow(10, 6)).toString().split("."); // Generate 6-digit code
     try {
-      // Generate 6-digit code
-      const [code] = (Math.random() * Math.pow(10, 6)).toString().split(".");
       await PasswordResetModel.create({
         code,
         email,
       });
+
       const mailer = new NodeMailer(mailerEmail as string, mailerPassword)
         .setSubject(Message.ForgotPasswordMailSubject)
         .setContent(
@@ -77,13 +120,26 @@ export class AuthController {
         )
         .addRecipient(email);
       await mailer.send();
-      // TODO: What's the proper status code?
-      res.status(StatusCodes.CREATED).send("Code sent");
+
+      return AppHttpResponse.send(
+        res,
+        StatusCodes.OK,
+        null,
+        Message.PasswordResetCodeSent
+      );
     } catch (err) {
-      next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
+      await PasswordResetModel.findOneAndRemove({ code, email });
+      return next(
+        new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+      );
     }
   };
 
+  /**
+   * Express middleware - Controller
+   *
+   * Reset a user's password
+   */
   static resetPassword: RequestHandler = async (req, res, next) => {
     const { email, code, password } = req.body;
     try {
@@ -91,21 +147,40 @@ export class AuthController {
         code,
         email,
       });
+
       if (!passwordResetDoc) {
-        // TODO: Proper response code??
-        res.status(403).send();
+        return AppHttpResponse.send(res, StatusCodes.FORBIDDEN, null);
       }
+
       const userDoc = await UserModel.findOne({ email });
       const hashedPassword = await hashPassword(password);
       userDoc.password = hashedPassword;
       const updatedUserDoc = userDoc.save();
       delete updatedUserDoc._doc.password;
-      // TODO: send email of password reset success
-      res.status(StatusCodes.NO_CONTENT).send();
+      await PasswordResetModel.findOneAndRemove({ code, email });
+
+      const mailer = new NodeMailer(mailerEmail, mailerPassword)
+        .addRecipient(updatedUserDoc.email)
+        .setSubject(Message.ResetPasswordMailSubject)
+        .setContent(
+          "text",
+          Message.ResetPasswordMailContent.replace(
+            "%useremail%",
+            updatedUserDoc.email
+          )
+        );
+      await mailer.send();
+
+      return AppHttpResponse.send(
+        res,
+        StatusCodes.OK,
+        null,
+        Message.PasswordResetSuccessful
+      );
     } catch (err) {
-      next(new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message));
+      return next(
+        new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+      );
     }
   };
 }
-
-// TODO: set st5ings to mssage constants
