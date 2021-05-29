@@ -5,8 +5,8 @@ import { cloudinary } from "../configs";
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "post-it",
-    allowed_formats: ["jpg", "png", "jpeg"],
+    folder: () => "post-it",
+    allowed_formats: () => ["jpg", "png", "jpeg"],
   },
 });
 
