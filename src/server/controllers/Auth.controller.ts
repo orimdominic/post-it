@@ -3,11 +3,15 @@ import { StatusCodes } from "http-status-codes";
 import { AppHttpError, AppHttpResponse } from "../helpers";
 import { hashPassword, createJwt, comparePassword } from "../helpers/util-fns";
 import { UserModel, PasswordResetModel } from "../models";
-import { NodeMailer } from "../services/emails";
+import { NodeMailer, MailService } from "../services/emails";
 import { NodeMailerConfig, Message, Key } from "../helpers/constants";
 const { email: mailerEmail, password: mailerPassword } = NodeMailerConfig;
 
 export class AuthController {
+  private static mailer: MailService = new NodeMailer(
+    mailerEmail,
+    mailerPassword
+  );
   /**
    * Express middleware - Controller
    *
@@ -25,14 +29,14 @@ export class AuthController {
       });
       delete userDoc._doc.password;
 
-      const mailer = new NodeMailer(mailerEmail as string, mailerPassword)
+      AuthController.mailer
         .setSubject(Message.RegMailSubject.replace("%useremail%", email))
         .setContent(
           "text",
           Message.RegMailContent.replace("%useremail%", email)
         )
         .addRecipient(email);
-      await mailer.send();
+      await AuthController.mailer.send();
 
       const token = await createJwt(userDoc.toJSON());
       res.set("Location", `/users/${userDoc._id}`);
@@ -109,7 +113,7 @@ export class AuthController {
         email,
       });
 
-      const mailer = new NodeMailer(mailerEmail as string, mailerPassword)
+      AuthController.mailer
         .setSubject(Message.ForgotPasswordMailSubject)
         .setContent(
           "text",
@@ -119,7 +123,7 @@ export class AuthController {
           ).replace("%code%", code)
         )
         .addRecipient(email);
-      await mailer.send();
+      await AuthController.mailer.send();
 
       return AppHttpResponse.send(
         res,
@@ -169,7 +173,7 @@ export class AuthController {
             updatedUserDoc.email
           )
         );
-      await mailer.send();
+      await AuthController.mailer.send();
 
       return AppHttpResponse.send(
         res,

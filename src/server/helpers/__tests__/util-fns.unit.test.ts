@@ -78,9 +78,6 @@ describe("AppHttpError", () => {
   it("creates and error with code arg", () => {
     const err = new AppHttpError(StatusCodes.NOT_FOUND);
     expect(err).toBeInstanceOf(Error);
-    expect(err).toHaveProperty(
-      "code",
-      StatusCodes.NOT_FOUND
-    );
+    expect(err).toHaveProperty("code", StatusCodes.NOT_FOUND);
   });
 });
