@@ -1,7 +1,11 @@
 import authRouter from "../auth.router";
-jest.useFakeTimers();
+import mongoose from "mongoose";
 
 describe("authRouter", () => {
+  afterAll(async () => {
+    await mongoose.connection.close();
+  });
+
   it(`has the following routes
 - post /auth/register,
 - post /auth/login,
@@ -13,6 +17,7 @@ describe("authRouter", () => {
       "post /auth/forgot-password",
       "patch /auth/password-reset",
     ];
+
     for (const r of routes) {
       const [method, path] = r.split(" ");
       const match = authRouter.stack.find(

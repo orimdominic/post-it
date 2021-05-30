@@ -81,8 +81,7 @@ export const decryptJwt = async (
     }) as Record<string, unknown>;
     return payload;
   } catch (err) {
-    console.error(err);
-    throw err;
+    throw new Error(err.message);
   }
 };
 

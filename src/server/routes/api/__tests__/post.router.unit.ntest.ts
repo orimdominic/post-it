@@ -1,6 +1,11 @@
 import postRouter from "../post.router";
+import mongoose from "mongoose";
 
-describe("authRouter", () => {
+describe("postRouter", () => {
+  afterAll(async () => {
+    await mongoose.connection.close();
+  });
+
   it(`has the following routes
 - get /posts,
 - get /posts/:id,
