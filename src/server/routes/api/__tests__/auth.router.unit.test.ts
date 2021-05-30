@@ -5,13 +5,11 @@ describe("authRouter", () => {
   it(`has the following routes
 - post /auth/register,
 - post /auth/login,
-- post /auth/logout,
 - post /auth/forgot-password,
 - patch /auth/password-reset,`, () => {
     const routes = [
       "post /auth/register",
       "post /auth/login",
-      "post /auth/logout",
       "post /auth/forgot-password",
       "patch /auth/password-reset",
     ];
