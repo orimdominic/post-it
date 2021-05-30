@@ -15,5 +15,6 @@ jobs:
       - name: Verify that redis is up
         run: redis-cli ping
       - run: yarn install
+      - run: yarn create:jwtkeys
       - run: yarn test:codecov
       - run: bash <(curl -s https://codecov.io/bash) # Upload to Codecov

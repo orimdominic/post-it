@@ -52,7 +52,7 @@ export const comparePassword = async (
 /**
  * Returns a generated a JWT from a payload
  * @param {Record<string, unknown>} payload
- * @returns  Promise<string> the JWT
+ * @returns  {Promise<string>} the JWT
  */
 export const createJwt = async (
   payload: Record<string, unknown>
