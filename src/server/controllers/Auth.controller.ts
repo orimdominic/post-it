@@ -183,21 +183,4 @@ export class AuthController {
       );
     }
   };
-
-  /**
-   * Express middleware - Controller
-   *
-   * Un-authenticate a logged in user
-   */
-  static logout: RequestHandler = async (req, res) => {
-    res.clearCookie(Key.Token);
-    res.setHeader(Key.AccessToken, "");
-
-    return AppHttpResponse.send(
-      res,
-      StatusCodes.OK,
-      null,
-      Message.LogoutSuccessful
-    );
-  };
 }
