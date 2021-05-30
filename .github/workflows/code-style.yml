@@ -14,10 +14,13 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
-      - run: node -v
-      - run: yarn -v
-      - run: yarn install
-      - run: yarn sanity-check
+      - name: Log node and yarn versions
+        run: node -v
+        run: yarn -v
+      - name: Install dependencies
+        run: yarn install
+      - name: Sanity checks
+        run: yarn sanity-check
   unit-tests:
     runs-on: ubuntu-latest
     steps:
@@ -25,8 +28,24 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
-      - run: node -v
-      - run: yarn -v
-      - run: yarn install
-      - run: yarn test:unit
-      # - run: yarn test:integration
+      - name: Log node and yarn versions
+        run: node -v
+        run: yarn -v
+      - name: Install dependencies
+        run: yarn install
+      - name: Run unit tests
+        run: yarn test:unit
+  # integration-tests:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: "14"
+  #     - name: Log node and yarn versions
+  #       run: node -v
+  #       run: yarn -v
+  #     - name: Install dependencies
+  #       run: yarn install
+  #     - name: Run unit tests
+  #       run: yarn test:integraton

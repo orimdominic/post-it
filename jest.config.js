@@ -7,5 +7,4 @@ module.exports = {
   testEnvironment: "node",
   testPathIgnorePatterns: ["/node_modules/", "/build/"],
   coverageReporters: ["html", "lcov"],
-  preset: "@shelf/jest-mongodb",
 };
