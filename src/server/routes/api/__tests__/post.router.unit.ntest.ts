@@ -1,26 +1,27 @@
-import authRouter from "../auth.router";
+import postRouter from "../post.router";
 import mongoose from "mongoose";
 
-describe("authRouter", () => {
+describe("postRouter", () => {
   afterAll(async () => {
     await mongoose.connection.close();
   });
 
   it(`has the following routes
-- post /auth/register,
-- post /auth/login,
-- post /auth/forgot-password,
-- patch /auth/password-reset,`, () => {
+- get /posts,
+- get /posts/:id,
+- patch /posts/:id,
+- post /posts,
+- delete /posts/:id`, () => {
     const routes = [
-      "post /auth/register",
-      "post /auth/login",
-      "post /auth/forgot-password",
-      "patch /auth/password-reset",
+      "get /posts",
+      "get /posts/:id",
+      "patch /posts/:id",
+      "post /posts",
+      "delete /posts/:id",
     ];
-
     for (const r of routes) {
       const [method, path] = r.split(" ");
-      const match = authRouter.stack.find(
+      const match = postRouter.stack.find(
         (s) => s.route.path === path && s.route.methods[method]
       );
       expect(match).toBeTruthy();
