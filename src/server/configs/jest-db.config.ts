@@ -14,9 +14,6 @@ export const connect = async () => {
     useUnifiedTopology: true,
     useCreateIndex: true,
     useFindAndModify: false,
-    autoReconnect: true,
-    reconnectTries: Number.MAX_VALUE,
-    reconnectInterval: 1000,
   };
 
   await mongoose.connect(uri, mongooseOpts);

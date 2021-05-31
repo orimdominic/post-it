@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/sudo-kaizen/posts/branch/main/graph/badge.svg?token=GSbO3lR9fX)](https://codecov.io/gh/sudo-kaizen/posts)
+[![codecov](https://codecov.io/gh/sudo-kaizen/post-it/branch/main/graph/badge.svg?token=Q5ms72phQz)](https://codecov.io/gh/sudo-kaizen/post-it)
 
 # post-it
 
