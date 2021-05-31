@@ -102,7 +102,7 @@ export const paginatorMetadata = (
   total: number,
   page: string,
   limit: string,
-  lite: boolean = false
+  lite = false
 ): { start: number; parsedLimit: number; main: Record<string, number> } => {
   const currentPage = parseInt(page, 10);
   const previousPage = currentPage - 1;

@@ -6,7 +6,6 @@ import {
 } from "..";
 import { createRequest, createResponse } from "node-mocks-http";
 import { NextFunction } from "express";
-import { AppHttpError } from "../../helpers";
 
 describe("Validators", () => {
   describe("createPostSchemaValidator", () => {
