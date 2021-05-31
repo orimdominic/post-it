@@ -31,8 +31,8 @@ export const trimInputs = (
 };
 
 /**
- * Hash a user's password
- * @param {string} password - the plain password
+ * Hash a password
+ * @param {string} password the plain password
  * @return {Promise<string>} the hashed password
  */
 export const hashPassword = async (password: string): Promise<string> =>
@@ -40,9 +40,9 @@ export const hashPassword = async (password: string): Promise<string> =>
 
 /**
  * Compares password with encrypted password hash
- * @param {string} password - the raw password submitted during login
- * @param {string} hash - the hashed password in the database
- * @return {boolean} - true if they are equal
+ * @param {string} password the raw password submitted during login
+ * @param {string} hash the hashed password in the database
+ * @return {boolean} true if they are equal
  */
 export const comparePassword = async (
   password: string,
@@ -87,11 +87,16 @@ export const decryptJwt = async (
 
 /**
  * Pagination helper
- * @param {number} total - document count
- * @param {string} page - requested page number
- * @param {string} limit - requested batched amount
- * @param {boolean} lite - if we need only part of the document, albeit the whole collection
- * @returns {start, parsedLimit: number, main: Record<string, number>}
+ * @param {number} total document count
+ * @param {string} page requested page number
+ * @param {string} limit requested batched amount
+ * @param {boolean} lite if we need only part of the document, albeit the whole collection
+ * @returns `{ main, parsedLimit, start}`
+ * - `start` - the position of the first item in the dataset
+ * - `parsedLimit` - the total items fetched/to fetch from the dataset
+ * - `main.previous` - the previous page. undefined if < 0
+ * - `main.end` - the position of the last item in the dataset. undefined if `limit * page > total`
+ * - `main.total` - the total items in the dataset page.
  */
 export const paginatorMetadata = (
   total: number,
@@ -117,5 +122,3 @@ export const paginatorMetadata = (
     },
   };
 };
-
-// TODO: Manage error handling for all code properly

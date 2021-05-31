@@ -21,7 +21,7 @@ export const emailInexistent: RequestHandler = async (req, res, next) => {
     if (!emailExists) {
       return next();
     }
-    return next(new AppHttpError(StatusCodes.BAD_REQUEST, Message.EmailExists));
+    return next(new AppHttpError(StatusCodes.CONFLICT));
   } catch (err) {
     return next(
       new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
