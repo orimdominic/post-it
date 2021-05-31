@@ -1,7 +1,5 @@
 import { config } from "dotenv";
 
-// TODO: Apply auth to /posts
-
 process.env.NODE_ENV === "production"
   ? config()
   : config({ path: ".local.env" });

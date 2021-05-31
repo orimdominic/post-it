@@ -1,10 +1,6 @@
 import nodemailer, { SentMessageInfo } from "nodemailer";
 import MailService from "./MailService";
 
-// TODO: Extract strings to constants
-// TODO: Add docs
-// TODO: Add tests
-
 export default class NodeMailer implements MailService {
   private transporter;
   private type: "html" | "text" | undefined;

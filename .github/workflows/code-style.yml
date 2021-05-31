@@ -28,24 +28,8 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
-      - name: Log node and yarn versions
-        run: node -v
-        run: yarn -v
-      - name: Install dependencies
-        run: yarn install
-      - name: Run unit tests
-        run: yarn test:unit
-  # integration-tests:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: "14"
-  #     - name: Log node and yarn versions
-  #       run: node -v
-  #       run: yarn -v
-  #     - name: Install dependencies
-  #       run: yarn install
-  #     - name: Run unit tests
-  #       run: yarn test:integraton
+      - run: node -v
+      - run: yarn -v
+      - run: yarn install
+      - run: yarn create:jwtkeys
+      - run: yarn test:unit
