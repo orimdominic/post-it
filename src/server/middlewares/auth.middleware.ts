@@ -16,17 +16,11 @@ import { UserModel } from "../models";
  */
 export const emailInexistent: RequestHandler = async (req, res, next) => {
   const email = req.body.user || req.body.email;
-  try {
-    const emailExists = await UserModel.exists({ email });
-    if (!emailExists) {
-      return next();
-    }
-    return next(new AppHttpError(StatusCodes.CONFLICT));
-  } catch (err) {
-    return next(
-      new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
-    );
+  const emailExists = await UserModel.exists({ email });
+  if (!emailExists) {
+    return next();
   }
+  return next(new AppHttpError(StatusCodes.CONFLICT));
 };
 
 /**
@@ -39,18 +33,14 @@ export const emailInexistent: RequestHandler = async (req, res, next) => {
  * @throws {AppHttpError} if email does not exist
  */
 export const emailExists: RequestHandler = async (req, res, next) => {
-  const email = req.body.user || req.body.email;
-  try {
-    const emailExists = await UserModel.exists({ email });
-    if (emailExists) {
-      return next();
-    }
-    return next(
-      new AppHttpError(StatusCodes.BAD_REQUEST, Message.EmailInexistent)
-    );
-  } catch (err) {
-    return next(new AppHttpError(StatusCodes.BAD_REQUEST, err.message));
+  const { email } = req.body.user || req.body;
+  const emailExists = await UserModel.exists({ email });
+  if (emailExists) {
+    return next();
   }
+  return next(
+    new AppHttpError(StatusCodes.BAD_REQUEST, Message.EmailInexistent)
+  );
 };
 
 /**
@@ -67,15 +57,15 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
   if (!authorization) {
     return AppHttpResponse.send(res, StatusCodes.UNAUTHORIZED, null);
   }
-  const token =
-    authorization && authorization.includes("Bearer")
-      ? authorization.replace("Bearer ", "")
-      : req.cookies.token;
+  const token = authorization.includes("Bearer")
+    ? authorization.replace("Bearer ", "")
+    : req.cookies.token;
   if (!token) {
     return AppHttpResponse.send(res, StatusCodes.UNAUTHORIZED, null);
   }
   try {
     const { _id } = (await decryptJwt(token)) as { [_id: string]: string };
+
     const userDoc = await UserModel.findOne({ _id });
     if (!userDoc) {
       return AppHttpResponse.send(res, StatusCodes.UNAUTHORIZED, null);
@@ -84,6 +74,8 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     req.body.user = userDoc.toJSON();
     return next();
   } catch (err) {
-    return next(new AppHttpError(StatusCodes.BAD_REQUEST, err.message));
+    return next(
+      new AppHttpError(StatusCodes.INTERNAL_SERVER_ERROR, err.message)
+    );
   }
 };
