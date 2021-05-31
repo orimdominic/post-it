@@ -1,14 +1,16 @@
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { CloudinaryStorage, Options } from "multer-storage-cloudinary";
 import { cloudinary } from "../configs";
+
+const uploadOptions = {
+  folder: "post-it",
+  allowed_formats: ["jpg", "png", "jpeg"],
+};
 
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: "post-it",
-    allowed_formats: ["jpg", "png", "jpeg"],
-  },
-});
+  params: uploadOptions,
+} as Options);
 
 /**
  * Express middleware

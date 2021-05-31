@@ -163,7 +163,7 @@ export class AuthController {
       delete updatedUserDoc._doc.password;
       await PasswordResetModel.findOneAndRemove({ code, email });
 
-      const mailer = new NodeMailer(mailerEmail, mailerPassword)
+      AuthController.mailer
         .addRecipient(updatedUserDoc.email)
         .setSubject(Message.ResetPasswordMailSubject)
         .setContent(
