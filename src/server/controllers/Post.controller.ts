@@ -180,14 +180,14 @@ export class PostController {
   };
 
   /**
-   * Extract images from `req.file` and parse into db model
+   * Extract images from `req.files` and parse into db model
    * @param {CloudinaryFileResponse[]} files files to parse
    * @returns {PostImage[] | undefined} the parsed files or undefined if no files are found
    */
   private static parseImages(
     files: CloudinaryFileResponse[]
   ): PostImage[] | undefined {
-    if (!files) {
+    if (!files || Object.keys(files).length === 0) {
       return;
     }
 
