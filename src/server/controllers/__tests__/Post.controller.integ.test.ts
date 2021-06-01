@@ -8,7 +8,6 @@ import { StatusCodes } from "http-status-codes";
 import { Types } from "mongoose";
 
 describe("static getOnePost", () => {
-
   let mockSendFn = jest.spyOn(AppHttpResponse, "send");
   beforeAll(async () => {
     await connect();
@@ -44,7 +43,6 @@ describe("static getOnePost", () => {
   });
 
   it(`it returns ${StatusCodes.NOT_FOUND} with null data if the post does not exist`, async () => {
-
     const reqMock = createRequest({
       params: { id: "fake_post_id" },
     });
