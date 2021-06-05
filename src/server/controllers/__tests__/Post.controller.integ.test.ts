@@ -187,7 +187,7 @@ describe("static createOnePost", () => {
 
     it(`responds with ${StatusCodes.OK} and data when there are one or more posts`, async () => {
       const userId = Types.ObjectId();
-      let posts = await PostModel.create(
+      await PostModel.create(
         {
           author: userId,
           content: "Lorem ipsum",
