@@ -64,7 +64,7 @@ export class PostController {
       return AppHttpResponse.send(
         res,
         StatusCodes.OK,
-        { ...main, postDocs },
+        { ...main, posts: postDocs },
         `${postDocs.length}/${totalPostDocs}`
       );
     } catch (err) {

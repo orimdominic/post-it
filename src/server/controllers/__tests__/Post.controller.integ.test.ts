@@ -167,6 +167,56 @@ describe("static createOnePost", () => {
       post: postDoc.toJSON(),
     });
   });
+
+  describe("static getAllPosts", () => {
+    it(`responds with ${StatusCodes.OK} and an empty array when there are no posts`, async () => {
+      const reqMock = createRequest();
+      const resMock = createResponse();
+      const nextMockFn: NextFunction = jest.fn((e: string) => void 0);
+      await PostController.getAllPosts(reqMock, resMock, nextMockFn);
+      expect(mockSendFn).toBeCalledWith(
+        resMock,
+        StatusCodes.OK,
+        {
+          posts: [],
+          total: 0,
+        },
+        "0/0"
+      );
+    });
+
+    it(`responds with ${StatusCodes.OK} and data when there are one or more posts`, async () => {
+      const userId = Types.ObjectId();
+      await PostModel.create(
+        {
+          author: userId,
+          content: "Lorem ipsum",
+          timestamp: new Date(),
+          images: [],
+        },
+        {
+          author: userId,
+          content: "Lorem ipsum",
+          timestamp: new Date(),
+          images: [],
+        }
+      );
+      const postDocs = await PostModel.find();
+      const reqMock = createRequest();
+      const resMock = createResponse();
+      const nextMockFn: NextFunction = jest.fn((e: string) => void 0);
+      await PostController.getAllPosts(reqMock, resMock, nextMockFn);
+      expect(mockSendFn).toBeCalledWith(
+        resMock,
+        StatusCodes.OK,
+        {
+          posts: postDocs,
+          total: postDocs.length,
+        },
+        `${postDocs.length}/${postDocs.length}`
+      );
+    });
+  });
 });
 
-// TODO: getAllPosts, updateOnePost
+// TODO: updateOnePost
