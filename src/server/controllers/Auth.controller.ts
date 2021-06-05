@@ -48,6 +48,7 @@ export class AuthController {
         StatusCodes.CREATED,
         {
           user: userDoc.toJSON(),
+          token
         },
         Message.RegistrationSuccessful
       );
@@ -89,6 +90,7 @@ export class AuthController {
         StatusCodes.OK,
         {
           user: userDoc.toJSON(),
+          token
         },
         Message.LoginSuccessful
       );
