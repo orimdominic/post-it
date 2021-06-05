@@ -1,11 +1,12 @@
 import { PostController } from "../Post.controller";
 import { connect, clear, close } from "../../configs/jest-db.config";
 import { createRequest, createResponse } from "node-mocks-http";
-import { PostModel } from "../../models";
+import { PostModel, UserModel } from "../../models";
 import { NextFunction } from "express";
 import { AppHttpResponse } from "../../helpers";
 import { StatusCodes } from "http-status-codes";
 import { Types } from "mongoose";
+import { Message } from "../../helpers/constants";
 
 describe("static getOnePost", () => {
   let mockSendFn = jest.spyOn(AppHttpResponse, "send");
@@ -167,56 +168,182 @@ describe("static createOnePost", () => {
       post: postDoc.toJSON(),
     });
   });
+});
 
-  describe("static getAllPosts", () => {
-    it(`responds with ${StatusCodes.OK} and an empty array when there are no posts`, async () => {
-      const reqMock = createRequest();
-      const resMock = createResponse();
-      const nextMockFn: NextFunction = jest.fn((e: string) => void 0);
-      await PostController.getAllPosts(reqMock, resMock, nextMockFn);
-      expect(mockSendFn).toBeCalledWith(
-        resMock,
-        StatusCodes.OK,
-        {
-          posts: [],
-          total: 0,
-        },
-        "0/0"
-      );
-    });
+describe("static getAllPosts", () => {
+  let mockSendFn = jest.spyOn(AppHttpResponse, "send");
+  beforeAll(async () => {
+    await connect();
+  });
 
-    it(`responds with ${StatusCodes.OK} and data when there are one or more posts`, async () => {
-      const userId = Types.ObjectId();
-      await PostModel.create(
-        {
-          author: userId,
-          content: "Lorem ipsum",
-          timestamp: new Date(),
-          images: [],
-        },
-        {
-          author: userId,
-          content: "Lorem ipsum",
-          timestamp: new Date(),
-          images: [],
-        }
-      );
-      const postDocs = await PostModel.find();
-      const reqMock = createRequest();
-      const resMock = createResponse();
-      const nextMockFn: NextFunction = jest.fn((e: string) => void 0);
-      await PostController.getAllPosts(reqMock, resMock, nextMockFn);
-      expect(mockSendFn).toBeCalledWith(
-        resMock,
-        StatusCodes.OK,
-        {
-          posts: postDocs,
-          total: postDocs.length,
-        },
-        `${postDocs.length}/${postDocs.length}`
-      );
-    });
+  beforeEach(() => {
+    mockSendFn = jest.spyOn(AppHttpResponse, "send");
+  });
+
+  afterEach(async () => {
+    await clear();
+    jest.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    await close();
+  });
+
+  it(`responds with ${StatusCodes.OK} and an empty array when there are no posts`, async () => {
+    const reqMock = createRequest();
+    const resMock = createResponse();
+    const nextMockFn: NextFunction = jest.fn((e: string) => void 0);
+    await PostController.getAllPosts(reqMock, resMock, nextMockFn);
+    expect(mockSendFn).toBeCalledWith(
+      resMock,
+      StatusCodes.OK,
+      {
+        posts: [],
+        total: 0,
+      },
+      "0/0"
+    );
+  });
+
+  it(`responds with ${StatusCodes.OK} and data when there are one or more posts`, async () => {
+    const userId = Types.ObjectId();
+    await PostModel.create(
+      {
+        author: userId,
+        content: "Lorem ipsum",
+        timestamp: new Date(),
+        images: [],
+      },
+      {
+        author: userId,
+        content: "Lorem ipsum",
+        timestamp: new Date(),
+        images: [],
+      }
+    );
+    const postDocs = await PostModel.find();
+    const reqMock = createRequest();
+    const resMock = createResponse();
+    const nextMockFn: NextFunction = jest.fn((e: string) => void 0);
+    await PostController.getAllPosts(reqMock, resMock, nextMockFn);
+    expect(mockSendFn).toBeCalledWith(
+      resMock,
+      StatusCodes.OK,
+      {
+        posts: postDocs,
+        total: postDocs.length,
+      },
+      `${postDocs.length}/${postDocs.length}`
+    );
   });
 });
 
-// TODO: updateOnePost
+describe("static updateOnePost", () => {
+  let mockSendFn = jest.spyOn(AppHttpResponse, "send");
+  beforeAll(async () => {
+    await connect();
+  });
+
+  beforeEach(() => {
+    mockSendFn = jest.spyOn(AppHttpResponse, "send");
+  });
+
+  afterEach(async () => {
+    await clear();
+    jest.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    await close();
+  });
+
+  it(`responds with ${StatusCodes.NOT_FOUND} if the post is not found by its id`, async () => {
+    const reqMock = createRequest({
+      params: {
+        id: "fake_post_id",
+      },
+      body: {
+        content: "Hello world",
+        timestamp: new Date(),
+        user: {
+          author: Types.ObjectId(),
+          email: "user@email.com",
+          password: "wdmpwmeLNLlkjsajd",
+        },
+      },
+    });
+    const resMock = createResponse();
+    const nextMockFn: NextFunction = jest.fn((e: string) => void 0);
+    await PostController.updateOnePost(reqMock, resMock, nextMockFn);
+    expect(mockSendFn).toHaveBeenCalledWith(
+      resMock,
+      StatusCodes.NOT_FOUND,
+      null
+    );
+  });
+
+  it(`responds with ${StatusCodes.FORBIDDEN} if the post to update is not by the author`, async () => {
+    const user = await UserModel.create({
+      email: "user@email.com",
+      password: "password",
+    });
+    const postDoc = await PostModel.create({
+      content: "Lorem ipsum",
+      author: user._id,
+    });
+    const reqMock = createRequest({
+      params: {
+        id: postDoc._id.toString(),
+      },
+      body: {
+        content: "Hello world",
+        timestamp: new Date(),
+        user: {
+          _id: "fake_author_id",
+        },
+      },
+    });
+    const resMock = createResponse();
+    const nextMockFn: NextFunction = jest.fn((e: string) => void 0);
+    await PostController.updateOnePost(reqMock, resMock, nextMockFn);
+    expect(mockSendFn).toHaveBeenCalledWith(
+      resMock,
+      StatusCodes.FORBIDDEN,
+      null
+    );
+  });
+
+  it(`responds with ${StatusCodes.OK} and post after updating post`, async () => {
+    const timestamp = new Date();
+    const user = await UserModel.create({
+      email: "user@email.com",
+      password: "password",
+    });
+    const postDoc = await PostModel.create({
+      content: "Lorem ipsum",
+      author: user._id,
+    });
+    const reqMock = createRequest({
+      params: {
+        id: postDoc._id.toString(),
+      },
+      body: {
+        content: "Hello world",
+        timestamp,
+        user: {
+          _id: user._id,
+        },
+      },
+    });
+    const resMock = createResponse();
+    const nextMockFn: NextFunction = jest.fn((e: string) => void 0);
+    await PostController.updateOnePost(reqMock, resMock, nextMockFn);
+    const updatedPostDoc = await PostModel.findById(postDoc._id);
+    expect(mockSendFn).toHaveBeenCalledWith(
+      resMock,
+      StatusCodes.OK,
+      { post: updatedPostDoc.toJSON() },
+      Message.Updated
+    );
+  });
+});
